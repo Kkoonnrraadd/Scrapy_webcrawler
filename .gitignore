@@ -7,6 +7,8 @@
 [Ss]cripts
 pyvenv.cfg
 .venv
+venv
+.idea
 pip-selfcheck.json
 
 ### JetBrains template
