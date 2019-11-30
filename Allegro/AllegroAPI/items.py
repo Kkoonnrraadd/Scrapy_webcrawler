@@ -10,9 +10,9 @@ import scrapy
 
 class AllegroapiItem(scrapy.Item):
     # define the fields for your item here like:
-    name = scrapy.Field()
-    #pola w ktorych bede trzymal informacje
-    title = scrapy.Field()
-    price = scrapy.Field()
-    url = scrapy.Field()
+    # name = scrapy.Field()
+	#pola w ktorych bede trzymal informacje 
+	#title = scrapy.Field()
+    #price = scrapy.Field()
+    #url = scrapy.Field()
     pass

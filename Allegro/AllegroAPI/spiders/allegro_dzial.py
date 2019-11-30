@@ -11,9 +11,7 @@ class ElectronicsSpider(scrapy.Spider):
     def start_requests(self): # jest uniwersalny dla kazdej podstrony dla kategorii Elektronika
         #tutaj trzeba doprecyowac przez ktore podkategorie ma przejsc pajak
         #multitasking przy zapytaniu o kilka produktow
-
-        urls=['https://allegro.pl/kategoria/konsole-i-automaty?bmatch=baseline-cl-dict42-ele-1-1-1024']    #telefony i akcesoria
-
+        urls=['https://allegro.pl/listing?string={}&bmatch=baseline-dict43-fas-1-1-1127'.format(input)]    #telefony i akcesoria
         for url in urls:
             yield Request(url,callback=self.parse)
 
