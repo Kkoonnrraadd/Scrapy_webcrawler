@@ -12,6 +12,7 @@ DEFAULT_OAUTH_URI = 'https://allegro.pl/auth/oauth'
 DEFAULT_REDIRECT_URI = 'http://localhost:8000'
 client_id = config.client_id
 api_key = config.api_key
+cred_base64 = config.cred_base64
 
 
 
@@ -25,6 +26,7 @@ def get_access_code(client_id=client_id, api_key=api_key, redirect_uri=DEFAULT_R
                '&client_id={}' \
                '&api-key={}' \
                '&redirect_uri={}'.format(oauth_uri, client_id, api_key, redirect_uri)
+
 
     # uzywamy narzędzia z modułu requests - urlparse - służy do spardowania podanego url
     # (oddzieli hostname od portu)
@@ -44,6 +46,13 @@ def get_access_code(client_id=client_id, api_key=api_key, redirect_uri=DEFAULT_R
             self.send_header('Content-Type', 'text/html')
             self.end_headers()
 
+            self.server.path = self.path
+            self.server.access_code = self.path.rsplit('?code=', 1)[-1]
+
+        def do_POST(self):
+            self.send_response(200, 'OK')
+            self.send_header('Content-Type', 'text/html')
+            self.end_headers()
             self.server.path = self.path
             self.server.access_code = self.path.rsplit('?code=', 1)[-1]
 
@@ -67,11 +76,22 @@ def get_access_code(client_id=client_id, api_key=api_key, redirect_uri=DEFAULT_R
 
     # Klasa HTTPServer przechowuje teraz nasz access_code - wyciągamy go
     _access_code = httpd.access_code
-
     # Dla jasności co się dzieje - wyświetlamy go na ekranie
     print('Got an authorize code: ', _access_code)
 
     # i zwracamy jako rezultat działania naszej funkcji
     return _access_code
 
-get_access_code()
+
+def get_token(cred_base64=cred_base64, redirect_uri=DEFAULT_REDIRECT_URI, oauth_uri=DEFAULT_OAUTH_URI):
+    auth_code = get_access_code()
+    token_uri = 'Authorization: Basic {} ' \
+              '{}/token?grant_type=authorization_code' \
+              '&code={}' \
+              '&redirect_uri={}'.format(cred_base64, oauth_uri, auth_code, redirect_uri)
+
+    _token = requests.post(token_uri)
+    print(_token)
+
+
+get_token()
