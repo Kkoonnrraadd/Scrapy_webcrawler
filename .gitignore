@@ -10,6 +10,7 @@ pyvenv.cfg
 venv
 .idea
 pip-selfcheck.json
+AllegroApi/config.py
 
 ### JetBrains template
 # User-specific stuff
