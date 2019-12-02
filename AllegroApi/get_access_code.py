@@ -8,7 +8,7 @@ import webbrowser
 from AllegroApi import config
 
 # Dla ułatwienia, definiujemy domyślne wartości (tak zwane stałe), są one uniwersalne
-DEFAULT_OAUTH_URL = 'https://allegro.pl/auth/oauth'
+DEFAULT_OAUTH_URI = 'https://allegro.pl/auth/oauth'
 DEFAULT_REDIRECT_URI = 'http://localhost:8000'
 client_id = config.client_id
 api_key = config.api_key
@@ -16,15 +16,15 @@ api_key = config.api_key
 
 
 # Implementujemy funkcję, której parametry przyjmują kolejno:
-#  - client_id (ClientID), api_key (API Key) oraz opcjonalnie redirect_uri i oauth_url
+#  - client_id (ClientID), api_key (API Key) oraz opcjonalnie redirect_uri i oauth_uri
 # (jeżeli ich nie podamy, zostaną użyte domyślne zdefiniowane wyżej)
-def get_access_code(client_id=client_id, api_key=api_key, redirect_uri=DEFAULT_REDIRECT_URI, oauth_url=DEFAULT_OAUTH_URL):
-    # zmienna auth_url zawierać będzie zbudowany na podstawie podanych parametrów URL do zdobycia kodu
-    auth_url = '{}/authorize' \
+def get_access_code(client_id=client_id, api_key=api_key, redirect_uri=DEFAULT_REDIRECT_URI, oauth_uri=DEFAULT_OAUTH_URI):
+    # zmienna auth_uri zawierać będzie zbudowany na podstawie podanych parametrów URL do zdobycia kodu
+    auth_uri = '{}/authorize' \
                '?response_type=code' \
                '&client_id={}' \
                '&api-key={}' \
-               '&redirect_uri={}'.format(oauth_url, client_id, api_key, redirect_uri)
+               '&redirect_uri={}'.format(oauth_uri, client_id, api_key, redirect_uri)
 
     # uzywamy narzędzia z modułu requests - urlparse - służy do spardowania podanego url
     # (oddzieli hostname od portu)
@@ -52,7 +52,7 @@ def get_access_code(client_id=client_id, api_key=api_key, redirect_uri=DEFAULT_R
 
     # Uruchamiamy przeglądarkę, przechodząc na adres zdefiniowany do uzyskania kodu dostępu
     # wyświetlić się powinien formularz logowania do serwisu Allegro.pl
-    webbrowser.open(auth_url)
+    webbrowser.open(auth_uri)
 
     # Uruchamiamy nasz lokalny web server na maszynie na której uruchomiony zostanie skrypt
     # taki serwer dostępny będzie pod adresem http://localhost:8000 (server_address)
