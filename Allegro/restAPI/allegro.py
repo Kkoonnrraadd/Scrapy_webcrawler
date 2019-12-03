@@ -96,6 +96,33 @@ def sign_in(client_id=client_id, client_secret=client_secret, api_key=api_key, r
     print(response.json())
     return response.json()
 
+def do_smt(
+        access_token='eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NzU0MTU1NjMsInVzZXJfbmFtZSI6IjYwNDU5MTQ5IiwianRpIjoiNjQwYjRjNDgtOWEzMi00NjA4LWJlYzEtNTNhZjA5MjI4Y2M3IiwiY2xpZW50X2lkIjoiYmM0OTViY2I5NjY4NDFlNTk1NzQ1YmU2ZGQ0YmZkZjkiLCJzY29wZSI6WyJhbGxlZ3JvX2FwaSJdfQ.dGkQEp5VyYb7tuhiR3gIBJMmuHX-y1rHDzcc4i6XA0z-Z8mvsgzOyFZPuwVC35WE2a0D_5Ajx5q_d5IWAHt46eAC4KZuFRNEJUFwwLX3H7svIuix-qCRsmSiPzBb0qFVKYYCfyz18khmZWE4HhHwKVzltl8uDmrqtY4RdCXMxoiHeHQCzjQr_s3m8Xqdr2etu5RPsaxXxcY8dLpXtx-G35au0D5sOUPpnrj6thpcjqf8NUeWT_pzaOJvndHgan2H1D878deGtyNyqTC-r_-ry8okl3h-Os1RufldyrM84aPyM7uYdlUr-m8VK7dNA5cJMxFylDLH7EJOONzSXd5UFw'):
+    headers = {}
+    headers['charset'] = 'utf-8'
+    headers['Accept-Language'] = 'pl-PL'
+    headers['Content-Type'] = 'application/json'
+    headers['Api-Key'] = api_key
+    headers['Accept'] = 'application/vnd.allegro.public.v1+json'
+    headers['Authorization'] = "Bearer {}".format(access_token)
+
+    # Inicjujemy naszą sesję (przechowuje nagłówki itd.)
+    # konstrukcja with pozwala na użycie sesji tylko w jej obrębie
+    # kiedy wyczerpią się instrukcje wewnątrz niej
+    # straci ona ważność (zostanie zamknięta)
+    with requests.Session() as session:
+
+        session.headers.update(headers)
+        DEFAULT_API_URL='https://api.allegro.pl'
+# randomowy jakis url z przykladu
+        response = session.get(DEFAULT_API_URL + '/after-sales-service-conditions/warranties',
+                               params={'sellerId': '60459149'})
+#params i headers
+        #print(response.headers)
+        print(response.url)
+        print(response.status_code)
+        # Wypisz odpowiedź w formacie JSON
+        print(response.json())
 
 
 #get_access_code()
