@@ -1,17 +1,23 @@
-import json
+def extract_data(json_data):
+    items = []
+    for typ_oferty in json_data['items']:
+        # print(typ_oferty)
+        for oferty in json_data['items'][typ_oferty]:
+            # print(oferty)
+            offer_id = oferty['id']
+            name = oferty['name']
+            seller = oferty['seller']
 
-def extract_seller_id(json_file):
-    pass
+            if (oferty['delivery']['availableForFree'] is False):
+                delivery_price = oferty['delivery']['lowestPrice']['amount']
+            else:
+                print(oferty['delivery']['availableForFree'])
+                delivery_price = 0
+            item_price = oferty['sellingMode']['price']['amount']
+            stock = oferty['stock']['available']
+            category_id = oferty['category']['id']
 
-def extract_delivery_price(json_file):
-    pass
-
-def extract_price(json_file):
-    pass
-
-def extract_availability(json_file):
-    pass
-
-def extract_name_and_id(json_file):
-    pass
-
+            oferta = {'offer_id': offer_id, 'item_name': name, 'seller': seller, 'delivery_price': delivery_price,
+                      'item_price': item_price, 'stock': stock, 'category_id': category_id}
+            items.append(oferta)
+    return items
