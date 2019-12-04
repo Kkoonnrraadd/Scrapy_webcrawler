@@ -12,7 +12,8 @@ venv
 pip-selfcheck.json
 AllegroApi/config.py
 **/config.*
-
+*.json
+**/*.json
 ### JetBrains template
 # User-specific stuff
 .idea/**/workspace.xml
