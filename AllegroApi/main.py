@@ -92,3 +92,5 @@ for i in input_table:
 #to wyszukuje tak jakby wgl nie bylo tego parametru podanego
 #np. seller.id "49703356" i phase kokos i cokolwiek
 #wynik zwraca duzo dla hasla kokos i czegos tam, a zapytanie wyciaga tylko dwa recordu w ktorych sie zgadza phase i seller.id
+
+
