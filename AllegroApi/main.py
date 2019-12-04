@@ -76,5 +76,5 @@ checkSeller.show()
 for i in input_table:
     print(seller_table[0])
     print(i)
-    get_ex_seller_data(i,34788)   # tutaj nie dziala, kiedy chce z tablic przekazac, tylko z palca dziala
+    get_ex_seller_data(i,"34788")   # tutaj nie dziala, kiedy chce z tablic przekazac, tylko z palca dziala
 
