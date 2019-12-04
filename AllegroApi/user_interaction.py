@@ -11,7 +11,7 @@ def insert_count(): #user podaje liczbe produktow
         return insert_count()
 
 
-def input_user(products_count): #user wprowadza produkty
+def input_user(products_count):  #user wprowadza produkty
     input_table = []
     for i in range(products_count):
         k = input("Enter the name: ")
