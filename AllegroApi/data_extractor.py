@@ -29,30 +29,30 @@ def extract_data(json_data):
             items.append(oferta)
     return items
 
-def extract_data_seller(data):
 
-    print(data)
+def extract_data_seller(data): # to samo co wyzej, bez sensu
+    # print(data)
     items=[]
     for typ_oferty in data['items']:
 
-        for typy in data['items'][typ_oferty]:
+        for oferta in data['items'][typ_oferty]:
 
-            offer_id = typy['id']
-            name = typy['name']
-            seller = typy['seller']
+            offer_id = oferta['id']
+            name = oferta['name']
+            seller = oferta['seller']
             #url_img=typy['images']['url']
-            if (typy['delivery']['availableForFree'] is False):
-                delivery_price = typy['delivery']['lowestPrice']['amount']
+            if (oferta['delivery']['availableForFree'] is False):
+                delivery_price = oferta['delivery']['lowestPrice']['amount']
             else:
-                print(typy['delivery']['availableForFree'])
+                # print(oferta['delivery']['availableForFree'])
                 delivery_price = 0
-            item_price = typy['sellingMode']['price']['amount']
-            stock = typy['stock']['available']
-            category_id = typy['category']['id']
+            item_price = oferta['sellingMode']['price']['amount']
+            stock = oferta['stock']['available']
+            category_id = oferta['category']['id']
 
             oferta = {'offer_id': offer_id, 'item_name': name, 'seller': seller, 'delivery_price': delivery_price,
                       'item_price': item_price, 'stock': stock, 'category_id': category_id}
-            print(oferta)
+            # print(oferta)
             items.append(oferta)
         return items
 
