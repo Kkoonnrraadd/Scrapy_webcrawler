@@ -1,6 +1,9 @@
 from AllegroApi import checkSeller
 
+
 def extract_data(json_data):
+    checkSeller.sellers.clear()  # czyszczenie listy sprzedawców. Wydaje mi sie, ze bez tego moga powstac problemy
+                                 # bo bedziemy niepotrzebnie przeszukiwac itemy u sprzedawcow, od ktorych je wzielismy
     items = []
     for typ_oferty in json_data['items']:
         # print(typ_oferty)
@@ -12,7 +15,7 @@ def extract_data(json_data):
             seller = oferty['seller']
 
             id_seller=oferty['seller']['id']
-            checkSeller.addSeller(id_seller)
+            # checkSeller.addSeller(id_seller)
             #+url do wyswietlania w GUI
             # url_img=typy['images']['url']
             if (oferty['delivery']['availableForFree'] is False):
@@ -57,3 +60,9 @@ def extract_data_seller(data): # to samo co wyzej, bez sensu
         return items
 
 
+def get_price_only(list_of_items):
+    list_of_prices = []
+    for item in list_of_items:
+        list_of_prices.append(float(item['item_price']))
+    list_of_prices.sort()
+    return list_of_prices

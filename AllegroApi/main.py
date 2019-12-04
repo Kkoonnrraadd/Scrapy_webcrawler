@@ -1,7 +1,10 @@
 from pyAllegro.api import AllegroRestApi
 import json
-from AllegroApi import data_extractor
+from AllegroApi import extractions
 from AllegroApi import checkSeller
+from AllegroApi import fetch_module
+from AllegroApi import utils
+from AllegroApi import user_interaction
 
 RestApi = AllegroRestApi()
 # RestApi.load_token()
@@ -14,81 +17,42 @@ RestApi = AllegroRestApi()
 # GUI/cokolwiek
 
 
-def get_response(phrase, limit=10, sorting='+price', minimum_price=0, maximum_price=999999999):
-    status_code, json_data = RestApi.resource_get(
-        resource_name='/offers/listing',
-        params={'phrase': phrase,
-                'limit': limit,
-                'sort': sorting,
-                'sellingMode.price.amount.gte': int(minimum_price),  # nie dziala jeszcze
-                'sellingMode.price.amount.lte': int(maximum_price),  # nie dziala jeszcze
-                'sellingMode.format': "BUY_NOW"}
-    )
-    return status_code, json_data
-
-
-def save_json(json_data, filename='zapytanie.json'):
-    with open(filename, 'w') as zapytanie:
-        json.dump(json_data, zapytanie)
-
 
 def get_extracted_data(phrase, limit=20, sorting='+price', minumum_price=0, maximum_price=999999999):
-    status_code, json_data = get_response(phrase, limit, sorting, minumum_price, maximum_price)
+    status_code, json_data = fetch_module.get_response(RestApi, phrase, limit, sorting, minumum_price, maximum_price)
     # save_json(json_data, filename='odpowiedz_surowa.json')
-    item_list = data_extractor.extract_data(json_data)
-    save_json(item_list)
+    item_list = extractions.extract_data(json_data)
+    # utils.save_json(item_list)
+    return item_list  # to zwraca listę artykulow pasujacych do wyszukiwanej frazy
 
-
-def get_price_only(list_of_items):
-    list_of_prices = []
-    for item in list_of_items:
-        list_of_prices.append(float(item['item_price']))
-    list_of_prices.sort()
-    return list_of_prices
-
-def get_response_seller( phrase, sellerId, limit=5, searchMode="REGULAR" ):
-    status_code, json_data = RestApi.resource_get(
-        resource_name='/offers/listing',
-        params={'phrase': phrase,
-                'seller.id': sellerId,
-                'limit': limit,
-                'searchMode': searchMode
-                    }
-    )
-    return status_code, json_data
 
 def get_ex_seller_data(phase, sellerId): #funkcja ktora ma na celu sprawdzenie czy produkt o nazwie phase nie znajduje sie u innych sprzedawcow
     #jezeli sie znajduje to zwraca item i mozna tu np porownywac te produkty po cenie
-    status_code, json_data = get_response_seller(phase, sellerId)
-    item_list_to_compare=data_extractor.extract_data_seller(json_data)
-    save_json(item_list_to_compare)
+    status_code, json_data = fetch_module.get_response_seller(RestApi, phase, sellerId)
+    item_list_to_compare=extractions.extract_data_seller(json_data)
+    # utils.save_json(item_list_to_compare)
+    return item_list_to_compare  # ?
 
-def insert_count(): #user podaje liczbe produktow
-    try:
-        product_count = int(input("Wpisz ilość produktów:\n"))
-        if product_count < 0 or product_count > 5:
-            print("Podano nieprawidłową wartość")
-            return insert_count()
-        else:
-            return product_count
-    except ValueError:
-        print("Podano nieprawidłową wartość")
-        return insert_count()
 
-def input_user(): #user wprowadza produkty
-    for i in range(products_count):
-        k = input("Enter the name: ")
-        input_table.append(k)
-        get_extracted_data(k)
+def write_responses_to_a_list(list_of_items_to_search):
+    responses_list = []
+    for item in list_of_items_to_search:  # dla kazdej frazy zwroc wyekstrachowana liste itemow na allegro
+        responses_list.append(get_extracted_data(item))  # wez ten szajs i dodaj go do listy?
+        # moze to nie bedzie zbyt szybkie, ale proste do napisania...
+    return responses_list
 
-input_table=[]
-products_count=insert_count()
-input_user()
 
-seller_table = checkSeller.getSellers() #tej tablicy
-checkSeller.show()
-for i in input_table:
-    get_ex_seller_data(i,'49703356') # tutaj jak wprowadzisz z palca seller.id to smiga, ale jak juz przekazuje z tej tablicy
+def run_this_program():
+    products_count = user_interaction.insert_count()
+    input_table = user_interaction.input_user(products_count)
+    first_order_responses = write_responses_to_a_list(input_table)  # lista bezposrednich odpowiedzi na nasze zapytanie
+    print(first_order_responses)
+    # seller_table = checkSeller.getSellers()  # tej tablicy
+    # checkSeller.show()
+
+
+# for i in input_table:
+#     get_ex_seller_data(i,'49703356') # tutaj jak wprowadzisz z palca seller.id to smiga, ale jak juz przekazuje z tej tablicy
 #to wyszukuje tak jakby wgl nie bylo tego parametru podanego
 #np. seller.id "49703356" i phase kokos i cokolwiek
 #wynik zwraca duzo dla hasla kokos i czegos tam, a zapytanie wyciaga tylko dwa recordu w ktorych sie zgadza phase i seller.id
