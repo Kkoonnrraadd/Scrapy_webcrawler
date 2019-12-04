@@ -12,7 +12,8 @@ RestApi = AllegroRestApi()
 # Brakuje jeszcze:
 # wyboru minimalnej ceny przedmiotow poszukiwanych
 # parsowania listy przedmiotow i odpowiedniego zapisu odpowiedzi
-# wybierania sprzedawcow z list i sprawdzania u nich ofert
+# wybierania sprzedawcow z list
+# sprawdzania dostępności artykułów u sprzedawcy
 # liczenia lacznej ceny i zwracania odpowiednio posortowanych odpowiedzi
 # GUI/cokolwiek
 
