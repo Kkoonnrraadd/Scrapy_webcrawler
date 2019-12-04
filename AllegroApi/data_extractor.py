@@ -1,4 +1,6 @@
 from AllegroApi import checkSeller
+
+
 def extract_data(json_data):
     items = []
     for typ_oferty in json_data['items']:
@@ -7,7 +9,7 @@ def extract_data(json_data):
             # print(oferty)
             offer_id = oferty['id']
             name = oferty['name']
-            print(name)
+            # print(name)
             seller = oferty['seller']
 
             id_seller=oferty['seller']['id']
@@ -16,7 +18,7 @@ def extract_data(json_data):
             if (oferty['delivery']['availableForFree'] is False):
                 delivery_price = oferty['delivery']['lowestPrice']['amount']
             else:
-                print(oferty['delivery']['availableForFree'])
+                # print(oferty['delivery']['availableForFree'])
                 delivery_price = 0
             item_price = oferty['sellingMode']['price']['amount']
             stock = oferty['stock']['available']
@@ -28,4 +30,5 @@ def extract_data(json_data):
     return items
 
 def extract_data_seller(data):
-    print(data)
+    # print(data)
+    pass

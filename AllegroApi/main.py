@@ -58,12 +58,13 @@ def get_response_seller(phrase,sellerId, limit=5,searchMode="REGULAR"):
     return status_code, json_data
 
 def get_ex_seller_data(phase,sellerId):
-    status_code, json_data = get_response_seller(phase,sellerId)
-    data_extractor.extract_data_seller(json_data)
+    status_code, json_data = get_response_seller(phase, sellerId)
+    # data_extractor.extract_data_seller(json_data)
+    print(data_extractor.extract_data(json_data))
 
 
 input_table=[]
-product_count=input("Enter count: ")
+product_count=3 #input("Enter count: ")
 
 for i in range(int(product_count)):
     k=input("Enter the name: ")
@@ -71,10 +72,12 @@ for i in range(int(product_count)):
     get_extracted_data(k)
 
 seller_table=checkSeller.getSellers()
-checkSeller.show()
+# checkSeller.show()
 
 for i in input_table:
-    print(seller_table[0])
-    print(i)
-    get_ex_seller_data(i,"34788")   # tutaj nie dziala, kiedy chce z tablic przekazac, tylko z palca dziala
+    # print(seller_table[0])
+    # print(i)
+    for seller in seller_table:
+        # print(seller)
+        get_ex_seller_data(i, seller)   # tutaj nie dziala, kiedy chce z tablic przekazac, tylko z palca dziala
 
