@@ -1,10 +1,11 @@
 import json
-sellers=[]
+
+sellers = []
 
 def getSellers():
     return sellers
 
-def addSeller(data):
+def addSeller(data): #pobieram id i zamieniam na string
 
     str_data = json.dumps(data)
     print("SELLER: "+str_data)

@@ -1,4 +1,5 @@
 from AllegroApi import checkSeller
+
 def extract_data(json_data):
     items = []
     for typ_oferty in json_data['items']:
@@ -12,7 +13,8 @@ def extract_data(json_data):
 
             id_seller=oferty['seller']['id']
             checkSeller.addSeller(id_seller)
-
+            #+url do wyswietlania w GUI
+            # url_img=typy['images']['url']
             if (oferty['delivery']['availableForFree'] is False):
                 delivery_price = oferty['delivery']['lowestPrice']['amount']
             else:
@@ -29,3 +31,26 @@ def extract_data(json_data):
 
 def extract_data_seller(data):
     print(data)
+    items=[]
+    for typ_oferty in data['items']:
+
+        for typy in data['items'][typ_oferty]:
+
+            offer_id = typy['id']
+            name = typy['name']
+            seller = typy['seller']
+            #url_img=typy['images']['url']
+            if (typy['delivery']['availableForFree'] is False):
+                delivery_price = typy['delivery']['lowestPrice']['amount']
+            else:
+                print(typy['delivery']['availableForFree'])
+                delivery_price = 0
+            item_price = typy['sellingMode']['price']['amount']
+            stock = typy['stock']['available']
+            category_id = typy['category']['id']
+
+            oferta = {'offer_id': offer_id, 'item_name': name, 'seller': seller, 'delivery_price': delivery_price,
+                      'item_price': item_price, 'stock': stock, 'category_id': category_id}
+            print(oferta)
+            items.append(oferta)
+        return items
