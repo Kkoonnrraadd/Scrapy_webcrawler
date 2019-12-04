@@ -1,4 +1,4 @@
-# Brakuje jeszcze:
+ # Brakuje jeszcze:
 
 * wyboru minimalnej ceny przedmiotow poszukiwanych
 * parsowania listy przedmiotow i odpowiedniego zapisu odpowiedzi
