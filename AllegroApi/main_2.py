@@ -11,7 +11,8 @@ RestApi = AllegroRestApi()
 
 def prepare_query():
     # przygotuj jakiegos dicta czy cos, co można byłoby wciągnąć do zapytania
-    szukane_dummy_dict = {'kabel do słuchawek recabling': [5, 70], 'Trąbka eustachiusza': [15, 300], 'Ostrze skalpel 100 szt. nr 11': [0, 25]}
+    # szukane_dummy_dict = {'kabel do słuchawek recabling': [5, 70], 'Trąbka eustachiusza': [15, 300], 'Ostrze skalpel 100 szt. nr 11': [0, 25]}
+    szukane_dummy_dict = {'kasza': [0, 100], 'mąka': [0, 100], 'mak': [0, 100]}
     return szukane_dummy_dict
 
 
@@ -30,20 +31,28 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
         # dla kazdego sprzedawcy tego itemu
         # szukaj itemow pasujacych do pozostalych szukanych fraz
 
-        keys = set(dict.keys(first_order_data))
-        excludes = set(search_item_name)
+        print('PARENT SEARCH: \t{}'.format(search_item_name))
+        # print('\t-------------------FIRST ORDER DATA: {}'.format(first_order_data[search_item_name]))
 
+        keys = set(dict.keys(first_order_data))
+        excludes = set([search_item_name])
         for found_item in first_order_data[search_item_name]:
             seller_id = found_item['seller']['id']
+
             for other_inputed_item in keys.difference(excludes):
+                # print('{}: {}'.format(search_item_name, other_inputed_item))
                 min_price, max_price = get_price_range(input_search_parameters[other_inputed_item])
                 # szukaj u sprzedawcy o seller_id, itemu o nazwie other_inputed_item i min i max cenie.
-
+                returned_raw_data = fetch_module.get_seller_response(RestApi, other_inputed_item, seller_id, limit=1,
+                                                                     maximum_price=max_price, minimum_price=min_price)
+                extracted_search_output = extractions.extract_valuable_info_from_raw_data(returned_raw_data)
+                if extracted_search_output:
+                    print('\t\t Found {} item with id = {} in {} staff: '.format(other_inputed_item,
+                                                                                 extracted_search_output[0]['offer_id'],
+                                                                                 # extracted_search_output[other_inputed_item]['offer_id'],
+                                                                                 seller_id))
+                    # print('\t\t\t------------------------------\n{}'.format(extracted_search_output))
             # trzeba to będzie jeszcze zapisać
-
-
-
-        # print(search_item_name)
 
 
 def get_data():
