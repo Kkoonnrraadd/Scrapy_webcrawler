@@ -4,11 +4,11 @@ def get_response(Object, phrase, limit=10, sorting='+price', minimum_price=0, ma
         params={'phrase': phrase,
                 'limit': limit,
                 'sort': sorting,
-                'sellingMode.price.amount.gte': int(minimum_price),  # nie dziala jeszcze
-                'sellingMode.price.amount.lte': int(maximum_price),  # nie dziala jeszcze
+                'price.from': int(minimum_price),  # nie dziala jeszcze
+                'price.to': int(maximum_price),  # nie dziala jeszcze
                 'sellingMode.format': "BUY_NOW"}
     )
-    return status_code, json_data
+    return json_data  #status_code,
 
 
 def get_response_seller(Object, phrase, sellerId, limit=5, searchMode="REGULAR" ):
@@ -20,4 +20,4 @@ def get_response_seller(Object, phrase, sellerId, limit=5, searchMode="REGULAR" 
                 'searchMode': searchMode
                     }
     )
-    return status_code, json_data
+    return json_data  # status_code

@@ -1,3 +1,3 @@
-from AllegroApi import main
+# from AllegroApi import main
 
-main.run_this_program()
+# main.run_this_program()
