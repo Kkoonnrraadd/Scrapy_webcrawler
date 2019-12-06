@@ -17,3 +17,19 @@ def input_user(products_count):  #user wprowadza produkty
         k = input("Enter the name: ")
         input_table.append(k)
     return input_table
+
+def minImax():
+    try:
+        pricemin = int(input('Podaj cenę minimalną:'))
+        pricemax = int(input('Podaj cenę minimalną:'))
+        if pricemin < 0:
+            print('Podano liczbę mniejszą od 0.')
+            return minImax()
+        if not pricemin <= pricemax:
+                print('Cena maksymalna jest mniejsza od minimalnej!')
+                return minImax(min, max)
+
+        return pricemin,pricemax
+    except ValueError:
+        print('Podano nieprawidłową wartość.')
+        return minImax()
