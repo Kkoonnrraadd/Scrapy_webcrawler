@@ -1,12 +1,12 @@
 from pyAllegro.api import AllegroRestApi
-import json
+
 from AllegroApi import extractions
-from AllegroApi import checkSeller
 from AllegroApi import fetch_module
 from AllegroApi import utils
-from AllegroApi import user_interaction
 
 RestApi = AllegroRestApi()
+
+
 # RestApi.load_token()
 
 # Brakuje jeszcze:
@@ -30,12 +30,12 @@ def get_ex_seller_data(phase, sellerId):  # funkcja ktora ma na celu sprawdzenie
     # nie znajduje sie u innych sprzedawcow
     # jezeli sie znajduje to zwraca item i mozna tu np porownywac te produkty po cenie
     status_code, json_data = fetch_module.get_response_seller(RestApi, phase, sellerId)
-    item_list_to_compare=extractions.extract_data_seller(json_data)
+    item_list_to_compare = extractions.extract_data_seller(json_data)
     # utils.save_json(item_list_to_compare)
     return item_list_to_compare  # ?
 
 
-def write_responses_to_a_list(list_of_items_to_search, price_min=0, price_max=1000): #dict
+def write_responses_to_a_list(list_of_items_to_search, price_min=0, price_max=1000):  # dict
     responses_list = []
     # tu tzeba jakos dac parsowanie razem z itemem, zakresu cenowego.
     # responses_dict = {}
@@ -65,20 +65,23 @@ def get_sellers(first_order_responses):
             print('dict: {}'.format(seller_offer_dict))
         sellers[item] = seller_offer_dict
     return sellers
+
+
 # run_this_program()
 
 # for i in input_table:
 #     get_ex_seller_data(i,'49703356') # tutaj jak wprowadzisz z palca seller.id to smiga, ale jak juz przekazuje z tej tablicy
-#to wyszukuje tak jakby wgl nie bylo tego parametru podanego
-#np. seller.id "49703356" i phase kokos i cokolwiek
-#wynik zwraca duzo dla hasla kokos i czegos tam, a zapytanie wyciaga tylko dwa recordu w ktorych sie zgadza phase i seller.id
+# to wyszukuje tak jakby wgl nie bylo tego parametru podanego
+# np. seller.id "49703356" i phase kokos i cokolwiek
+# wynik zwraca duzo dla hasla kokos i czegos tam, a zapytanie wyciaga tylko dwa recordu w ktorych sie zgadza phase i seller.id
 
 
 def run_this_program():
     # products_count = user_interaction.insert_count()
     # input_table = user_interaction.input_user(products_count)
     input_table = ['Kasza', 'Kurczaki']  # temporary
-    first_order_responses = write_responses_to_a_list(input_table, price_min=30, price_max=50)  # DICT lista bezposrednich odpowiedzi na nasze zapytanie
+    first_order_responses = write_responses_to_a_list(input_table, price_min=30,
+                                                      price_max=50)  # DICT lista bezposrednich odpowiedzi na nasze zapytanie
     # print(type(first_order_responses))
     utils.save_json(first_order_responses)
     sellers = get_sellers(first_order_responses)

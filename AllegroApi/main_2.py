@@ -1,10 +1,10 @@
+import time
+
 from pyAllegro.api import AllegroRestApi
-import json
 from AllegroApi import extractions
-from AllegroApi import checkSeller
 from AllegroApi import fetch_module
-from AllegroApi import utils
-from AllegroApi import user_interaction
+
+time_start = time.time()
 
 RestApi = AllegroRestApi()
 
@@ -12,7 +12,7 @@ RestApi = AllegroRestApi()
 def prepare_query():
     # przygotuj jakiegos dicta czy cos, co można byłoby wciągnąć do zapytania
     # szukane_dummy_dict = {'kabel do słuchawek recabling': [5, 70], 'Trąbka eustachiusza': [15, 300], 'Ostrze skalpel 100 szt. nr 11': [0, 25]}
-    szukane_dummy_dict = {'kasza': [0, 100], 'mąka': [0, 100], 'mak': [0, 100]}
+    szukane_dummy_dict = {'kasza jaglana': [0, 100], 'mąka gryczana': [0, 100], 'mak biały': [0, 100]}
     return szukane_dummy_dict
 
 
@@ -37,22 +37,28 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
         keys = set(dict.keys(first_order_data))
         excludes = set([search_item_name])
         for found_item in first_order_data[search_item_name]:
-            seller_id = found_item['seller']['id']
+            # print(found_item)
+            seller_id = found_item['seller']
 
             for other_inputed_item in keys.difference(excludes):
-                # print('{}: {}'.format(search_item_name, other_inputed_item))
                 min_price, max_price = get_price_range(input_search_parameters[other_inputed_item])
                 # szukaj u sprzedawcy o seller_id, itemu o nazwie other_inputed_item i min i max cenie.
                 returned_raw_data = fetch_module.get_seller_response(RestApi, other_inputed_item, seller_id, limit=1,
                                                                      maximum_price=max_price, minimum_price=min_price)
-                extracted_search_output = extractions.extract_valuable_info_from_raw_data(returned_raw_data)
-                if extracted_search_output:
-                    print('\t\t Found {} item with id = {} in {} staff: '.format(other_inputed_item,
-                                                                                 extracted_search_output[0]['offer_id'],
-                                                                                 # extracted_search_output[other_inputed_item]['offer_id'],
-                                                                                 seller_id))
+                extracted_second_order_search_output = extractions.extract_valuable_info_from_raw_data(
+                    returned_raw_data)
+                try:
+                    print('\t\t Found {} item for parent_item_id = {} with id ='
+                          ' {} in {} staff and price {}: '.format(other_inputed_item,
+                                                                  found_item['offer_id'],
+                                                                  extracted_second_order_search_output[0]['offer_id'],
+                                                                  # extracted_search_output[other_inputed_item]['offer_id'],
+                                                                  seller_id,
+                                                                  extracted_second_order_search_output[0][
+                                                                      'item_price']))
                     # print('\t\t\t------------------------------\n{}'.format(extracted_search_output))
-            # trzeba to będzie jeszcze zapisać
+                except IndexError:
+                    pass
 
 
 def get_data():
@@ -61,12 +67,17 @@ def get_data():
     for item_name in multi_search_parameters:
         haslo = item_name
         min_price, max_price = get_price_range(multi_search_parameters[haslo])
-        returned_search_raw_data = fetch_module.get_response(RestApi, haslo, minimum_price=min_price, maximum_price=max_price)
-        list_of_items_returned_for_searched_item = extractions.extract_valuable_info_from_raw_data(returned_search_raw_data)
+        returned_search_raw_data = fetch_module.get_response(RestApi, haslo, minimum_price=min_price,
+                                                             maximum_price=max_price)
+
+        list_of_items_returned_for_searched_item = extractions.extract_valuable_info_from_raw_data(
+            returned_search_raw_data)
         first_order_data[item_name] = list_of_items_returned_for_searched_item
     # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
+
     look_for_other_items_in_sellers(first_order_data, multi_search_parameters)
     # utils.save_json(first_order_data)
+
+
 get_data()
-
-
+print('\n\n---------------------------------------\n\tTOTAL TIME OF EXECUTION: {}'.format(time.time() - time_start))
