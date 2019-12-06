@@ -1,4 +1,5 @@
 # from AllegroApi import checkSeller
+from AllegroApi import utils
 
 
 def extract_valuable_info_from_raw_data(json_data):
@@ -21,12 +22,12 @@ def extract_valuable_info_from_raw_data(json_data):
             category_id = oferty['category']['id']
 
             oferta = {'offer_id': offer_id, 'item_name': name, 'seller': id_seller, 'delivery_price': delivery_price,
-                      'item_price': item_price}
+                      'item_price': item_price, 'item_link': utils.generete_link(name, offer_id)}
             returned_items_list.append(oferta)
     return returned_items_list
 
 
-def extract_data_seller(data):  # to samo co wyzej, bez sensu
+def extract_data_seller(data):
     items = []
     for typ_oferty in data['items']:
 
@@ -45,7 +46,7 @@ def extract_data_seller(data):  # to samo co wyzej, bez sensu
             category_id = oferta['category']['id']
 
             oferta = {'offer_id': offer_id, 'item_name': name, 'seller': seller, 'delivery_price': delivery_price,
-                      'item_price': item_price, 'stock': stock, 'category_id': category_id}
+                      'item_price': item_price, 'item_link': utils.generete_link(name, offer_id)}
             items.append(oferta)
         return items
 
