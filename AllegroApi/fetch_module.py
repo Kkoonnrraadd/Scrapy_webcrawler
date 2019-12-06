@@ -22,6 +22,7 @@ def get_seller_response(Object, phrase, seller_id, limit=10, sorting='+price', m
                 'sellingMode.format': "BUY_NOW",
                 'seller.id': seller_id}
     )
+    print(json_data)
     return json_data  #status_code,
 
 def get_response_seller(Object, phrase, sellerId, limit=1, searchMode="REGULAR",

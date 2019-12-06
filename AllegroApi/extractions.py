@@ -30,6 +30,7 @@ def extract_valuable_info_from_raw_data(json_data):
             oferta = {'offer_id': offer_id, 'item_name': name, 'seller': seller, 'delivery_price': delivery_price,
                       'item_price': item_price} #, 'stock': stock, 'category_id': category_id}
             returned_items_list.append(oferta)
+            print(oferta)
     return returned_items_list
 
 

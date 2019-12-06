@@ -5,9 +5,9 @@ RestApi = AllegroRestApi()
 #RestApi = AllegroRestApi(config_file_dir='/Users/xszpo/.allegroApiConfig')
 
 RestApi.credentials_set(
-        appName=config.app_name,
-        clientId=config.client_id,
-        clientSecred=config.client_secret,
+        appName="apk_testy",
+        clientId="bc495bcb966841e595745be6dd4bfdf9",
+        clientSecred="PccfAnqy9bbeCea4IJAtPa0yuihUuRiZU4BOF8BHkNKNrAMEbnrBZmmzF1ZrNFm2",
         redirectUrl='http://localhost:8000'
         )
 
