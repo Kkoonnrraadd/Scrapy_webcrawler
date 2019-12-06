@@ -12,7 +12,11 @@ RestApi = AllegroRestApi()
 def prepare_query():
     # przygotuj jakiegos dicta czy cos, co można byłoby wciągnąć do zapytania
     # szukane_dummy_dict = {'kabel do słuchawek recabling': [5, 70], 'Trąbka eustachiusza': [15, 300], 'Ostrze skalpel 100 szt. nr 11': [0, 25]}
-    szukane_dummy_dict = {'kasza jaglana': [0, 100], 'mąka gryczana': [0, 100], 'mak biały': [0, 100]}
+    # szukane_dummy_dict = {'lampka led dla roślin': [10, 25], 'zamgławiacz fogger': [5, 25], 'płyn do soczewek 500 ml': [0, 12],
+    #                       'nóż do szkła': [15,50], 'kindle keyboard': [60,150]}
+
+    szukane_dummy_dict = {'zarowka led dla roslin': [10, 25], 'zamglawiacz fogger': [5, 75], 'plyn do soczewek 500 ml': [0, 20],
+                          'nóż do szkła': [15, 50], 'kindle': [60, 350]}
     return szukane_dummy_dict
 
 
@@ -99,7 +103,7 @@ def get_data():
             returned_search_raw_data)
         first_order_data[item_name] = list_of_items_returned_for_searched_item
     # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
-
+    utils.save_json(first_order_data, filename='first_order.json')
     OUTPUT = look_for_other_items_in_sellers(first_order_data, multi_search_parameters)
     utils.save_json(OUTPUT)
 
