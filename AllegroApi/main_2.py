@@ -4,27 +4,22 @@ from pyAllegro.api import AllegroRestApi
 from AllegroApi import extractions
 from AllegroApi import fetch_module
 from AllegroApi import utils
+
 time_start = time.time()
 
 RestApi = AllegroRestApi()
 
 
 def prepare_query():
-    # przygotuj jakiegos dicta czy cos, co można byłoby wciągnąć do zapytania
-    # szukane_dummy_dict = {'kabel do słuchawek recabling': [5, 70], 'Trąbka eustachiusza': [15, 300], 'Ostrze skalpel 100 szt. nr 11': [0, 25]}
-    # szukane_dummy_dict = {'lampka led dla roślin': [10, 25], 'zamgławiacz fogger': [5, 25], 'płyn do soczewek 500 ml': [0, 12],
-    #                       'nóż do szkła': [15,50], 'kindle keyboard': [60,150]}
-
-    szukane_dummy_dict = {'zarowka led dla roslin': [10, 25], 'zamglawiacz fogger': [5, 75], 'plyn do soczewek 500 ml': [0, 20],
-                          'kindle': [60, 350]} #'nóż do szkła': [15, 50]
+    # szukane_dummy_dict = {'zarowka led dla roslin': [10, 25], 'zamglawiacz fogger': [5, 75],
+    #                       'plyn do soczewek 500 ml': [0, 20]}
 
     # szukane_dummy_dict = {'daktyle 1kg': [3, 25], 'Rodzynki 1kg': [5, 25],
     #                       'żurawina suszona 1kg': [5, 30],
     #                       'Kurkuma 250g': [0, 15], 'pieprz czarny 100g': [0, 20]}
 
-    # szukane_dummy_dict = {'daktyle 1kg': [0, 11], 'kmin rzymski 250g': [0, 6],
-    #                       'kolendra 250g': [0, 6],
-    #                       'Orzechy arachidowe 1kg': [0, 15]}
+    szukane_dummy_dict = {'daktyle 1kg': [0, 11],
+                          'Orzechy arachidowe 1kg': [0, 15]}
     return szukane_dummy_dict
 
 
@@ -85,9 +80,12 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
                     # print('\t\t\t\t\t\tother_inputed_item_loop')
                     min_price, max_price = get_price_range(input_search_parameters[other_inputed_item])
                     # szukaj u sprzedawcy o seller_id, itemu o nazwie other_inputed_item i min i max cenie.
-                    returned_raw_data = fetch_module.get_seller_response(RestApi, other_inputed_item, seller_id, limit=1,
-                                                                             maximum_price=max_price, minimum_price=min_price)
-                    extracted_second_order_search_output = extractions.extract_valuable_info_from_raw_data(returned_raw_data)
+                    returned_raw_data = fetch_module.get_seller_response(RestApi, other_inputed_item, seller_id,
+                                                                         limit=1,
+                                                                         maximum_price=max_price,
+                                                                         minimum_price=min_price)
+                    extracted_second_order_search_output = extractions.extract_valuable_info_from_raw_data(
+                        returned_raw_data)
                     try:
 
                         #  zapisywanie znalezionych wyników,
@@ -115,6 +113,26 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
     return DUZY_DICT
 
 
+def get_most_expensive_delivery_price(delivery_price_table):
+    try:
+        return delivery_price_table.sort()[0]
+    except TypeError:
+        return delivery_price_table[0]
+
+
+def get_sum_of_prices(found_items_data):
+    for seller_id in found_items_data:
+        total_price = 0.0
+        product_price_sum = 0.0
+        delivery_price_table = []
+        for item in found_items_data[seller_id]:
+            product_price_sum = product_price_sum + found_items_data[seller_id][item]['price']
+            delivery_price_table.append(found_items_data[seller_id][item]['delivery_price'])
+            total_price = product_price_sum + get_most_expensive_delivery_price(delivery_price_table)
+        found_items_data[seller_id]['total_price'] = total_price
+    return found_items_data
+
+
 def get_data():
     multi_search_parameters = prepare_query()
     first_order_data = {}
@@ -129,8 +147,14 @@ def get_data():
         first_order_data[item_name] = list_of_items_returned_for_searched_item
     # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
     OUTPUT = look_for_other_items_in_sellers(first_order_data, multi_search_parameters)
+    OUTPUT = get_sum_of_prices(OUTPUT)
     utils.save_json(OUTPUT)
+    return OUTPUT
 
 
 get_data()
 print('\n\n---------------------------------------\n\tTOTAL TIME OF EXECUTION: {}'.format(time.time() - time_start))
+
+
+# teraz fajnie byłoby mieć takie coś, żeby przelatywać po sprzedawcach i sprawdzać, które atrybuty mają z naszej listy
+# jakoś zbierać to, żeby 

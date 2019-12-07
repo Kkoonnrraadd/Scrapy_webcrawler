@@ -21,8 +21,8 @@ def extract_valuable_info_from_raw_data(json_data):
             stock = oferty['stock']['available']
             category_id = oferty['category']['id']
 
-            oferta = {'offer_id': offer_id, 'item_name': name, 'seller': id_seller, 'delivery_price': delivery_price,
-                      'item_price': item_price, 'item_link': utils.generete_link(name, offer_id)}
+            oferta = {'offer_id': offer_id, 'item_name': name, 'seller': id_seller, 'delivery_price': float(delivery_price),
+                      'item_price': float(item_price), 'item_link': utils.generete_link(name, offer_id)}
             returned_items_list.append(oferta)
     return returned_items_list
 
@@ -45,8 +45,8 @@ def extract_data_seller(data):
             stock = oferta['stock']['available']
             category_id = oferta['category']['id']
 
-            oferta = {'offer_id': offer_id, 'item_name': name, 'seller': seller, 'delivery_price': delivery_price,
-                      'item_price': item_price, 'item_link': utils.generete_link(name, offer_id)}
+            oferta = {'offer_id': offer_id, 'item_name': name, 'seller': seller, 'delivery_price': float(delivery_price),
+                      'item_price': float(item_price), 'item_link': utils.generete_link(name, offer_id)}
             items.append(oferta)
         return items
 
