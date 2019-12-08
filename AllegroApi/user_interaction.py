@@ -12,11 +12,15 @@ def insert_count():  # user podaje liczbe produktow
 
 
 def input_user():  # user wprowadza produkty
+    try:
+        name = input("Enter the name: ")
+        min_price, max_price = minImax()
+        input_us={ name : [min_price,max_price] }
+        return input_us
+    except TypeError:
+        print("Podaj nazwe (string)")
+        return input_user()
 
-    name = input("Enter the name: ")
-    min_price, max_price = minImax()
-    input_us={ name : [min_price,max_price] }
-    return input_us
 
 def minImax():
     try:
