@@ -11,9 +11,29 @@ def insert_count():  # user podaje liczbe produktow
         return insert_count()
 
 
-def input_user(products_count):  # user wprowadza produkty
-    input_table = []
-    for i in range(products_count):
-        k = input("Enter the name: ")
-        input_table.append(k)
-    return input_table
+def input_user():  # user wprowadza produkty
+    try:
+        name = input("Enter the name: ")
+        min_price, max_price = minImax()
+        input_us={ name : [min_price,max_price] }
+        return input_us
+    except TypeError:
+        print("Podaj nazwe (string)")
+        return input_user()
+
+
+def minImax():
+    try:
+        pricemin = int(input('Podaj cenę minimalną:'))
+        pricemax = int(input('Podaj cenę minimalną:'))
+        if pricemin < 0:
+            print('Podano liczbę mniejszą od 0.')
+            return minImax()
+        if not pricemin <= pricemax:
+                print('Cena maksymalna jest mniejsza od minimalnej!')
+                return minImax()
+
+        return pricemin,pricemax
+    except ValueError:
+        print('Podano nieprawidłową wartość.')
+        return minImax()

@@ -2,20 +2,30 @@ import time
 from operator import itemgetter
 import itertools
 from pyAllegro.api import AllegroRestApi
-
 from AllegroApi import extractions
 from AllegroApi import fetch_module
 from AllegroApi import utils
-
+from AllegroApi import user_interaction
 time_start = time.time()
 
 RestApi = AllegroRestApi()
 
 
 def prepare_query():
-    szukane_dummy_dict = {'daktyle 1kg': [0, 11],
-                          'Orzechy arachidowe 1kg': [0, 15],
-                          'gówno': [0, 30]}
+    # szukane_dummy_dict = {'zarowka led dla roslin': [10, 25], 'zamglawiacz fogger': [5, 75],
+    #                       'plyn do soczewek 500 ml': [0, 20]}
+
+    # szukane_dummy_dict = {'daktyle 1kg': [3, 25], 'Rodzynki 1kg': [5, 25],
+    #                       'żurawina suszona 1kg': [5, 30],
+    #                       'Kurkuma 250g': [0, 15], 'pieprz czarny 100g': [0, 20]}
+    szukane_dummy_dict={}
+    count=user_interaction.insert_count()
+    for i in range(count):
+        dictdummy=user_interaction.input_user()
+        szukane_dummy_dict.update(dictdummy)
+    # szukane_dummy_dict = {'daktyle 1kg': [0, 11],
+    #                       'Orzechy arachidowe 1kg': [0, 15]}
+    print(szukane_dummy_dict)
     return szukane_dummy_dict
 
 
@@ -27,6 +37,7 @@ def get_price_range(min_max_price):
 
 
 def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
+    # item_subitem = {}
     sellers_found = set()
     DUZY_DICT = {}
 
@@ -156,17 +167,18 @@ def choose_cheapest_3(prepared_sets_of_articles):
 
 
 def get_data():
-    multi_search_parameters = prepare_query()
+    multi_search_parameters = prepare_query()  #zapytanko
     first_order_data = {}
-    for item_name in multi_search_parameters:
+    for item_name in multi_search_parameters:  # itemki
         haslo = item_name
-        min_price, max_price = get_price_range(multi_search_parameters[haslo])
+        min_price, max_price = get_price_range(multi_search_parameters[haslo])    #cene
         returned_search_raw_data = fetch_module.get_response(RestApi, haslo, minimum_price=min_price,
-                                                             maximum_price=max_price)
+                                                             maximum_price=max_price)  #zapytanie i odpowiedz raw
 
         list_of_items_returned_for_searched_item = extractions.extract_valuable_info_from_raw_data(
             returned_search_raw_data)
-        first_order_data[item_name] = list_of_items_returned_for_searched_item
+
+        first_order_data[item_name] = list_of_items_returned_for_searched_item # z pierwszego zapytania
     # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
     OUTPUT = look_for_other_items_in_sellers(first_order_data, multi_search_parameters)
     # print(OUTPUT)
