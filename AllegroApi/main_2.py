@@ -19,7 +19,8 @@ def prepare_query():
     #                       'Kurkuma 250g': [0, 15], 'pieprz czarny 100g': [0, 20]}
 
     szukane_dummy_dict = {'daktyle 1kg': [0, 11],
-                          'Orzechy arachidowe 1kg': [0, 15]}
+                          'Orzechy arachidowe 1kg': [0, 15],
+                          'Kurkuma 250g': [0, 15]}
     return szukane_dummy_dict
 
 
@@ -64,6 +65,8 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
             maly_sredni_dict['name'] = found_item['item_name']
             maly_sredni_dict['link'] = found_item['item_link']
             maly_sredni_dict['delivery_price'] = found_item['delivery_price']
+            maly_sredni_dict['seller'] = found_item['seller']
+
             sredni_dict[search_item_name] = maly_sredni_dict
 
             # print('\t\t\t\t\tmaly_sredni_dict = {}'.format(maly_sredni_dict))
@@ -102,6 +105,7 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
                         maly_dict['name'] = extracted_second_order_search_output[0]['item_name']
                         maly_dict['link'] = extracted_second_order_search_output[0]['item_link']
                         maly_dict['delivery_price'] = extracted_second_order_search_output[0]['delivery_price']
+                        maly_dict['seller'] = extracted_second_order_search_output[0]['seller']
                         sredni_dict[other_inputed_item] = maly_dict
                         # print('\t\t\t\t\t\tsredni_dict({}) = {}'.format(other_inputed_item, sredni_dict))
                         # print('\t\t\t\t\t\t-------------TU_DODAJE_SIE_SREDNI_DICT_DO_DUZEGO')
@@ -133,6 +137,77 @@ def get_sum_of_prices(found_items_data):
     return found_items_data
 
 
+def choose_cheapest_set(data, searched_names=''):
+    worek = {}
+    number_of_items_searched = 0
+    for keys in searched_names:
+        number_of_items_searched = number_of_items_searched + 1
+        worek[keys] = []
+    # jeśli przeleciałeś po wszystkich itemach sprzedawcy i są wszystkie szukane - zlicz cenę i wypisz do zbioru sprzedawców
+    # ze wszystkimi itemami -> sprzedawca_id = sumaryczna_cena
+
+    # jeśli po jednym itemie od każdego sprzedawcy
+
+    # Dla każdego sprzedawcy posiadającego przedmiot A,( b, c,...) znajdź każdego sprzedawcę posiadającego przedmiot B,
+    # C, D, E, F. Dla każdej kombinacji wszystkich przedmiotów zlicz cenę i zapisz zbiór:
+    # sprzedawca_1:przedmiot_A, sprzedawca_2:rpzedmiotB. Jeśli sprzedawca_1 ma przedmiot A i B,
+    # to dodawaj jakoś te ceny...
+
+    # to powinno być tak, że mamy listę zbiorów sprzedawca:przedmiot. Dla kazdego przedmiotu, dodajemy sprzedawcę, który ma przedmiot
+    # po jednym tak, żeby uzyskać wszystkie możliwe sposoby połączenia (bruteforce)
+    # all_possible_sets = {}
+    # for searched_item in searched_names:
+    #     for seller in data:
+    #         if data[seller][searched_item]:
+    #             all_possible_sets.append()
+    #     pass
+    for seller in data:
+        for item in data[seller]:
+            # print(data[seller][item])
+            worek[item].append(data[seller][item])
+
+    all_possible_combinations = {}
+    iterator = 0
+
+    for seller in data:
+        for item in data[seller]:
+            all_possible_combinations[iterator] = [data[seller][item]]
+            for item2 in data[seller]:
+                if item2 != item:
+                    all_possible_combinations[iterator].append(data[seller][item2])
+            iterator = iterator + 1
+
+    for iterator in all_possible_combinations:
+        if len(all_possible_combinations[iterator]) == number_of_items_searched:
+            sellers_ids = []
+
+            price_sum = 0
+            for item in all_possible_combinations[iterator]:
+                delivery_price = 0
+                sum_of_delivery_price = 0
+                price_sum = 0
+                print(item)
+                price_sum = price_sum + item['price']
+                # price_sum = price_sum+all_possible_combinations[iterator][item]['price']
+                sum_of_delivery_price = sum_of_delivery_price + item['delivery_price'] #all_possible_combinations[iterator][item]['delivery_price']
+                for item2 in all_possible_combinations[iterator]:
+                    if item != item2:
+                        if item['seller'] == item2['seller']:  # all_possible_combinations[iterator][item2]['seller']:
+                            delivery_price_two_max = max(item['delivery_price'], item2['delivery_price'])
+                            delivery_price = max(delivery_price, delivery_price_two_max)
+                            price_sum = price_sum+item2['price']
+                        else:
+                            sum_of_delivery_price = sum_of_delivery_price+item2['seller']
+                            price_sum = price_sum+item2['price']
+                sum_of_delivery_price = sum_of_delivery_price + delivery_price
+            price_sum_with_delivery = sum_of_delivery_price+price_sum
+            print('iterator {} price summ {}'.format(iterator, price_sum_with_delivery))
+
+    utils.save_json(all_possible_combinations, 'all_possible.json')
+    print(all_possible_combinations)
+
+
+
 def get_data():
     multi_search_parameters = prepare_query()
     first_order_data = {}
@@ -147,8 +222,10 @@ def get_data():
         first_order_data[item_name] = list_of_items_returned_for_searched_item
     # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
     OUTPUT = look_for_other_items_in_sellers(first_order_data, multi_search_parameters)
-    OUTPUT = get_sum_of_prices(OUTPUT)
+    # OUTPUT = get_sum_of_prices(OUTPUT)  # dane ze zsumowanymi cenami
+    choose_cheapest_set(OUTPUT,multi_search_parameters)
     utils.save_json(OUTPUT)
+
     return OUTPUT
 
 
@@ -157,4 +234,4 @@ print('\n\n---------------------------------------\n\tTOTAL TIME OF EXECUTION: {
 
 
 # teraz fajnie byłoby mieć takie coś, żeby przelatywać po sprzedawcach i sprawdzać, które atrybuty mają z naszej listy
-# jakoś zbierać to, żeby 
+# jakoś zbierać to, żeby
