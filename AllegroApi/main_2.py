@@ -157,13 +157,13 @@ def get_price(data):
             if x not in duplicatess:
                 price_sum += x
         set.append(price_sum)
-    utils.save_json(data, 'zcena.json')
+    # utils.save_json(data, 'zcena.json')
     return data
 
 
-def choose_cheapest_3(prepared_sets_of_articles):
-    sorted_list = sorted(prepared_sets_of_articles, key=itemgetter(1))
-    return sorted_list[:3]
+def get_cheapest_3_items(prepared_sets_of_articles):
+    return (sorted(prepared_sets_of_articles, key = lambda x: x[-1]))[:3]
+
 
 
 def get_data():
@@ -189,9 +189,10 @@ def get_data():
     # OUTPUT = get_sum_of_prices(OUTPUT)  # dane ze zsumowanymi cenami
     # article_combinations = get_article_combinations(OUTPUT, multi_search_parameters)
     # OUTPUT = choose_cheapest_3(article_combinations)
-    get_price(OUTPUT)
-    utils.save_json(OUTPUT)
+    OUTPUT = get_price(OUTPUT)
+    OUTPUT = get_cheapest_3_items(OUTPUT)
 
+    utils.save_json(OUTPUT)
     return OUTPUT
 
 
