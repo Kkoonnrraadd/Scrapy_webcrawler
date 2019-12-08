@@ -157,13 +157,27 @@ def get_price(data):
             if x not in duplicatess:
                 price_sum += x
         set.append(price_sum)
-    # utils.save_json(data, 'zcena.json')
     return data
 
 
 def get_cheapest_3_items(prepared_sets_of_articles):
     return (sorted(prepared_sets_of_articles, key = lambda x: x[-1]))[:3]
 
+
+def print_links(data):
+    nazwa = ''
+    szukana_nazwa = ''
+    cena_calkowita = ''
+    print('WYNIK')
+    for sets in data:
+        print(80*'-')
+        cena_calkowita = sets[-1]
+        for item in range(len(sets)-1):
+            item_body = sets[item][1]
+            item_text = '\n\tszukane hasło: {}\n znaleziono: {} o id {} w cenie {}. \nlink {}'.format(sets[item][0], item_body['name'], item_body['id'], item_body['price'], item_body['link'])
+            print(item_text)
+        print('cena_calkowita = {}'.format(cena_calkowita))
+    return
 
 
 def get_data():
@@ -181,17 +195,12 @@ def get_data():
         first_order_data[item_name] = list_of_items_returned_for_searched_item # z pierwszego zapytania
     # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
     OUTPUT = look_for_other_items_in_sellers(first_order_data, multi_search_parameters)
-    # print(OUTPUT)
     OUTPUT = prepare_data_to_permutation(OUTPUT, multi_search_parameters)
-    # print(OUTPUT)
     utils.save_json(OUTPUT, 'prepared_data.json')
     OUTPUT = permute_data(OUTPUT)
-    # OUTPUT = get_sum_of_prices(OUTPUT)  # dane ze zsumowanymi cenami
-    # article_combinations = get_article_combinations(OUTPUT, multi_search_parameters)
-    # OUTPUT = choose_cheapest_3(article_combinations)
     OUTPUT = get_price(OUTPUT)
     OUTPUT = get_cheapest_3_items(OUTPUT)
-
+    print(print_links(OUTPUT))
     utils.save_json(OUTPUT)
     return OUTPUT
 
