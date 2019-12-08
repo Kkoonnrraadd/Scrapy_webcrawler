@@ -1,5 +1,4 @@
 import time
-from operator import itemgetter
 import itertools
 from pyAllegro.api import AllegroRestApi
 from AllegroApi import extractions
@@ -12,37 +11,25 @@ RestApi = AllegroRestApi()
 
 
 def prepare_query():
-    # szukane_dummy_dict = {'zarowka led dla roslin': [10, 25], 'zamglawiacz fogger': [5, 75],
-    #                       'plyn do soczewek 500 ml': [0, 20]}
-
-    # szukane_dummy_dict = {'daktyle 1kg': [3, 25], 'Rodzynki 1kg': [5, 25],
-    #                       'żurawina suszona 1kg': [5, 30],
-    #                       'Kurkuma 250g': [0, 15], 'pieprz czarny 100g': [0, 20]}
-    szukane_dummy_dict={}
+    search_parameters={}
     count=user_interaction.insert_count()
     for i in range(count):
-        dictdummy=user_interaction.input_user()
-        szukane_dummy_dict.update(dictdummy)
-    # szukane_dummy_dict = {'daktyle 1kg': [0, 11],
-    #                       'Orzechy arachidowe 1kg': [0, 15]}
-    print(szukane_dummy_dict)
-    return szukane_dummy_dict
+        input_parameters=user_interaction.input_user()
+        search_parameters.update(input_parameters)
+    return search_parameters
 
 
 def get_price_range(min_max_price):
-    # trzeba pamietac, zeby cena minimalna zawsze była w zakresie [0;max_price]
     min_price = min_max_price[0]
     max_price = min_max_price[1]
     return min_price, max_price
 
 
 def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
-    # item_subitem = {}
     sellers_found = set()
     DUZY_DICT = {}
 
     for search_item_name in first_order_data:
-        # min_price, max_price = get_price_range(input_search_parameters[search_item_name])
         keys = set(dict.keys(first_order_data))
         excludes = set([search_item_name])
 
@@ -60,7 +47,7 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
 
             sredni_dict[search_item_name] = maly_sredni_dict
 
-            if seller_id not in sellers_found:  # to po to, żeby nie duplikować.
+            if seller_id not in sellers_found:
 
                 sellers_found.add(seller_id)
 
@@ -165,9 +152,6 @@ def get_cheapest_3_items(prepared_sets_of_articles):
 
 
 def print_links(data):
-    nazwa = ''
-    szukana_nazwa = ''
-    cena_calkowita = ''
     print('WYNIK')
     for sets in data:
         print(80*'-')

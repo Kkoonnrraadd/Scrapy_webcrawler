@@ -3,8 +3,6 @@ from AllegroApi import utils
 
 
 def extract_valuable_info_from_raw_data(json_data):
-    # checkSeller.sellers.clear()  # czyszczenie listy sprzedawców. Wydaje mi sie, ze bez tego moga powstac problemy
-    # bo bedziemy niepotrzebnie przeszukiwac itemy u sprzedawcow, od ktorych je wzielismy
     returned_items_list = []
     for typ_oferty in json_data['items']:
         for oferty in json_data['items'][typ_oferty]:
@@ -12,7 +10,6 @@ def extract_valuable_info_from_raw_data(json_data):
             name = oferty['name']
 
             id_seller = oferty['seller']['id']
-            # url_img=typy['images']['url']
             if (oferty['delivery']['availableForFree'] is False):
                 delivery_price = oferty['delivery']['lowestPrice']['amount']
             else:

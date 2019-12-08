@@ -23,22 +23,4 @@ def get_seller_response(Object, phrase, seller_id, limit=10, sorting='+price', m
                 'sellingMode.format': "BUY_NOW",
                 'seller.id': seller_id}
     )
-    return json_data  # status_code,
-
-
-# ------- OLD
-def get_response_seller(Object, phrase, sellerId, limit=1, searchMode="REGULAR",
-                        sorting='+price', minimum_price=0, maximum_price=999999999):
-    status_code, json_data = Object.resource_get(
-        resource_name='/offers/listing',
-        params={'phrase': phrase,
-                'seller.id': sellerId,
-                'sort': sorting,
-                'price.from': minimum_price,
-                'price.to': maximum_price,
-                'limit': limit,
-                'searchMode': searchMode
-                }
-    )
-    return json_data  # status_code
-# -/-------OLD
+    return json_data
