@@ -178,33 +178,36 @@ def choose_cheapest_set(data, searched_names=''):
             iterator = iterator + 1
 
     for iterator in all_possible_combinations:
-        if len(all_possible_combinations[iterator]) == number_of_items_searched:
-            sellers_ids = []
 
-            price_sum = 0
+        if len(all_possible_combinations[iterator]) == number_of_items_searched:
+
             for item in all_possible_combinations[iterator]:
-                delivery_price = 0
+                price_sum_with_delivery = 0
                 sum_of_delivery_price = 0
                 price_sum = 0
-                print(item)
+                delivery_price = 0
+                price_sum = 0
                 price_sum = price_sum + item['price']
-                # price_sum = price_sum+all_possible_combinations[iterator][item]['price']
+                list_of_sellers = []
                 sum_of_delivery_price = sum_of_delivery_price + item['delivery_price'] #all_possible_combinations[iterator][item]['delivery_price']
                 for item2 in all_possible_combinations[iterator]:
+                    list_of_sellers.append(item['seller'])
                     if item != item2:
-                        if item['seller'] == item2['seller']:  # all_possible_combinations[iterator][item2]['seller']:
+                        if item2['seller'] in list_of_sellers:
                             delivery_price_two_max = max(item['delivery_price'], item2['delivery_price'])
                             delivery_price = max(delivery_price, delivery_price_two_max)
                             price_sum = price_sum+item2['price']
-                        else:
+                        elif item2['seller'] not in list_of_sellers:
+                            list_of_sellers.append(item2['seller'])
                             sum_of_delivery_price = sum_of_delivery_price+item2['seller']
                             price_sum = price_sum+item2['price']
                 sum_of_delivery_price = sum_of_delivery_price + delivery_price
             price_sum_with_delivery = sum_of_delivery_price+price_sum
-            print('iterator {} price summ {}'.format(iterator, price_sum_with_delivery))
+            
+            print(iterator)
+            print(price_sum_with_delivery)
 
     utils.save_json(all_possible_combinations, 'all_possible.json')
-    print(all_possible_combinations)
 
 
 
