@@ -122,7 +122,7 @@ def get_price(data):
         price_sum += max_delivery_price
         for x in range(len(delivery_prices)):
             if x not in duplicatess:
-                price_sum += x
+                price_sum += delivery_prices[x]
         set.append(price_sum)
     return data
 
