@@ -1,5 +1,5 @@
 import time
-
+from operator import itemgetter
 from pyAllegro.api import AllegroRestApi
 from AllegroApi import extractions
 from AllegroApi import fetch_module
@@ -137,30 +137,14 @@ def get_sum_of_prices(found_items_data):
     return found_items_data
 
 
-def choose_cheapest_set(data, searched_names=''):
+def get_article_combinations(data, searched_names=''):
+    returning_sets = []
     worek = {}
     number_of_items_searched = 0
     for keys in searched_names:
         number_of_items_searched = number_of_items_searched + 1
         worek[keys] = []
-    # jeśli przeleciałeś po wszystkich itemach sprzedawcy i są wszystkie szukane - zlicz cenę i wypisz do zbioru sprzedawców
-    # ze wszystkimi itemami -> sprzedawca_id = sumaryczna_cena
 
-    # jeśli po jednym itemie od każdego sprzedawcy
-
-    # Dla każdego sprzedawcy posiadającego przedmiot A,( b, c,...) znajdź każdego sprzedawcę posiadającego przedmiot B,
-    # C, D, E, F. Dla każdej kombinacji wszystkich przedmiotów zlicz cenę i zapisz zbiór:
-    # sprzedawca_1:przedmiot_A, sprzedawca_2:rpzedmiotB. Jeśli sprzedawca_1 ma przedmiot A i B,
-    # to dodawaj jakoś te ceny...
-
-    # to powinno być tak, że mamy listę zbiorów sprzedawca:przedmiot. Dla kazdego przedmiotu, dodajemy sprzedawcę, który ma przedmiot
-    # po jednym tak, żeby uzyskać wszystkie możliwe sposoby połączenia (bruteforce)
-    # all_possible_sets = {}
-    # for searched_item in searched_names:
-    #     for seller in data:
-    #         if data[seller][searched_item]:
-    #             all_possible_sets.append()
-    #     pass
     for seller in data:
         for item in data[seller]:
             # print(data[seller][item])
@@ -203,13 +187,15 @@ def choose_cheapest_set(data, searched_names=''):
                             price_sum = price_sum+item2['price']
                 sum_of_delivery_price = sum_of_delivery_price + delivery_price
             price_sum_with_delivery = sum_of_delivery_price+price_sum
-            
-            print(iterator)
-            print(price_sum_with_delivery)
+            returning_sets.append([all_possible_combinations[iterator], price_sum_with_delivery])
+            # print(iterator)
+            # print(price_sum_with_delivery)
+    utils.save_json(returning_sets, 'return.json')
+    return returning_sets
 
-    utils.save_json(all_possible_combinations, 'all_possible.json')
-
-
+def choose_cheapest_3(prepared_sets_of_articles):
+    sorted_list = sorted(prepared_sets_of_articles, key=itemgetter(1))
+    return sorted_list[:3]
 
 def get_data():
     multi_search_parameters = prepare_query()
@@ -226,7 +212,8 @@ def get_data():
     # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
     OUTPUT = look_for_other_items_in_sellers(first_order_data, multi_search_parameters)
     # OUTPUT = get_sum_of_prices(OUTPUT)  # dane ze zsumowanymi cenami
-    choose_cheapest_set(OUTPUT,multi_search_parameters)
+    article_combinations = get_article_combinations(OUTPUT, multi_search_parameters)
+    OUTPUT = choose_cheapest_3(article_combinations)
     utils.save_json(OUTPUT)
 
     return OUTPUT
