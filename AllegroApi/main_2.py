@@ -1,6 +1,8 @@
 import time
 from operator import itemgetter
+import itertools
 from pyAllegro.api import AllegroRestApi
+
 from AllegroApi import extractions
 from AllegroApi import fetch_module
 from AllegroApi import utils
@@ -11,16 +13,9 @@ RestApi = AllegroRestApi()
 
 
 def prepare_query():
-    # szukane_dummy_dict = {'zarowka led dla roslin': [10, 25], 'zamglawiacz fogger': [5, 75],
-    #                       'plyn do soczewek 500 ml': [0, 20]}
-
-    # szukane_dummy_dict = {'daktyle 1kg': [3, 25], 'Rodzynki 1kg': [5, 25],
-    #                       'żurawina suszona 1kg': [5, 30],
-    #                       'Kurkuma 250g': [0, 15], 'pieprz czarny 100g': [0, 20]}
-
     szukane_dummy_dict = {'daktyle 1kg': [0, 11],
                           'Orzechy arachidowe 1kg': [0, 15],
-                          'Kurkuma 250g': [0, 15]}
+                          'gówno': [0, 30]}
     return szukane_dummy_dict
 
 
@@ -32,34 +27,19 @@ def get_price_range(min_max_price):
 
 
 def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
-    # item_subitem = {}
     sellers_found = set()
     DUZY_DICT = {}
-    # print('\twywolanie look_for_other_items_in_sellers')
-    # print('\t\tinicjalizacja DUZY_DICT')
 
     for search_item_name in first_order_data:
-        # print('\t\t\tsearch_item_name: {}'.format(search_item_name))
-        min_price, max_price = get_price_range(input_search_parameters[search_item_name])
-        # dla kazdego hasla i zakresu cenowego, ktory zdefiniowalismy,
-        # dla kazdego itemu znalezionego
-        # dla kazdego sprzedawcy tego itemu
-        # szukaj itemow pasujacych do pozostalych szukanych fraz
-
-        # print('PARENT SEARCH: \t{}'.format(search_item_name))
-        # print('\t-------------------FIRST ORDER DATA: {}'.format(first_order_data[search_item_name]))
+        # min_price, max_price = get_price_range(input_search_parameters[search_item_name])
         keys = set(dict.keys(first_order_data))
-        # print('\t\t\tstan_kluczy: {}'.format(keys))
         excludes = set([search_item_name])
-        # print('\t\t\texcludes: {}'.format(search_item_name))
 
         for found_item in first_order_data[search_item_name]:
             seller_id = found_item['seller']
-            # print('\t\t\t\tseller_id: {}'.format(seller_id))
-            # print(found_item)
+
             sredni_dict = {}
             maly_sredni_dict = {}
-            # print('')
             maly_sredni_dict['id'] = found_item['offer_id']
             maly_sredni_dict['price'] = found_item['item_price']
             maly_sredni_dict['name'] = found_item['item_name']
@@ -69,20 +49,12 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
 
             sredni_dict[search_item_name] = maly_sredni_dict
 
-            # print('\t\t\t\t\tmaly_sredni_dict = {}'.format(maly_sredni_dict))
-            # print('\t\t\t\t\t------sredni_dict[{}] = {}'.format(search_item_name, sredni_dict[search_item_name]))
-
             if seller_id not in sellers_found:  # to po to, żeby nie duplikować.
 
-                # print('\t\t\t\t\tsredni_dict({}) = {}'.format(search_item_name, sredni_dict))
-
-                # Wybieramy najtańszy przedmiot każdego sprzedającego
                 sellers_found.add(seller_id)
 
                 for other_inputed_item in keys.difference(excludes):
-                    # print('\t\t\t\t\t\tother_inputed_item_loop')
                     min_price, max_price = get_price_range(input_search_parameters[other_inputed_item])
-                    # szukaj u sprzedawcy o seller_id, itemu o nazwie other_inputed_item i min i max cenie.
                     returned_raw_data = fetch_module.get_seller_response(RestApi, other_inputed_item, seller_id,
                                                                          limit=1,
                                                                          maximum_price=max_price,
@@ -90,14 +62,6 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
                     extracted_second_order_search_output = extractions.extract_valuable_info_from_raw_data(
                         returned_raw_data)
                     try:
-
-                        #  zapisywanie znalezionych wyników,
-                        #  tj. id_sprzedawcy: {nazwa przedmiotu_1: {id:id_przedmiotu, link:link_do_przedmiotu,
-                        #  cena: cena_przedmiotu, dostawa: cena_dostawy_przedmiotu}, nazwa_przedmiotu_2...}
-                        #  ??????max_cena_przesylki: max_cena_przesyłki, cena_wszystkiego: cena_sumaryczna}???? czy liczyć osobno?
-
-                        # w tej pętli jeśli znajdziemy jakiś przedmiot będący u sprzedawcy z pętli powyżej,
-                        # robimy z niego dicta i dodajemy do powyższego dicta
 
                         maly_dict = {}
                         maly_dict['id'] = extracted_second_order_search_output[0]['offer_id']
@@ -107,11 +71,8 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
                         maly_dict['delivery_price'] = extracted_second_order_search_output[0]['delivery_price']
                         maly_dict['seller'] = extracted_second_order_search_output[0]['seller']
                         sredni_dict[other_inputed_item] = maly_dict
-                        # print('\t\t\t\t\t\tsredni_dict({}) = {}'.format(other_inputed_item, sredni_dict))
-                        # print('\t\t\t\t\t\t-------------TU_DODAJE_SIE_SREDNI_DICT_DO_DUZEGO')
                         DUZY_DICT[seller_id] = sredni_dict
                     except IndexError:
-                        # DUZY_DICT[seller_id] = sredni_dict
                         pass
                 DUZY_DICT[seller_id] = sredni_dict
     return DUZY_DICT
@@ -137,65 +98,62 @@ def get_sum_of_prices(found_items_data):
     return found_items_data
 
 
-def get_article_combinations(data, searched_names=''):
-    returning_sets = []
-    worek = {}
-    number_of_items_searched = 0
-    for keys in searched_names:
-        number_of_items_searched = number_of_items_searched + 1
-        worek[keys] = []
+def prepare_data_to_permutation(data, search_parameters):
 
-    for seller in data:
-        for item in data[seller]:
-            # print(data[seller][item])
-            worek[item].append(data[seller][item])
+    name_items_found_dict = {}
+    for name in search_parameters:
+        table_for_data = []
+        for seller in data:
+            for item in data[seller]:
+                if item == name:
+                    table_for_data.append(data[seller][name])
+            name_items_found_dict[name] = table_for_data
+    return name_items_found_dict
 
-    all_possible_combinations = {}
-    iterator = 0
 
-    for seller in data:
-        for item in data[seller]:
-            all_possible_combinations[iterator] = [data[seller][item]]
-            for item2 in data[seller]:
-                if item2 != item:
-                    all_possible_combinations[iterator].append(data[seller][item2])
-            iterator = iterator + 1
+def permute_data(data):
+    returned_list = []
+    sorted_keys = sorted(data.keys())
+    for element in itertools.product(*list(data[k] for k in sorted_keys)):
+        returned_list.append(list(zip(sorted_keys, element)))
+    return returned_list
 
-    for iterator in all_possible_combinations:
 
-        if len(all_possible_combinations[iterator]) == number_of_items_searched:
+def get_price(data):
+    for set in data:
+        seller_ids = []
+        price_sum = 0.0
+        iterator = 0
+        delivery_prices = []
+        max_delivery_price = 0.0
+        for item in set:
+            iterator += 1
+            item_body = item[1]
+            seller = item_body['seller']
+            price_sum += item_body['price']
+            delivery_prices.append(item_body['delivery_price'])
+            seller_ids.append(item_body['seller'])
+        duplicatess = []
+        delivery_to_max = []
+        for seller_id in seller_ids:
+            duplicates = [i for i, x in enumerate(seller_ids) if x == seller_id]
+            duplicatess.append(duplicates[0])
+        for dup_index in duplicatess:
+            delivery_to_max.append(delivery_prices[dup_index])
+        max_delivery_price = max(delivery_to_max)
+        price_sum += max_delivery_price
+        for x in range(len(delivery_prices)):
+            if x not in duplicatess:
+                price_sum += x
+        set.append(price_sum)
+    utils.save_json(data, 'zcena.json')
+    return data
 
-            for item in all_possible_combinations[iterator]:
-                price_sum_with_delivery = 0
-                sum_of_delivery_price = 0
-                price_sum = 0
-                delivery_price = 0
-                price_sum = 0
-                price_sum = price_sum + item['price']
-                list_of_sellers = []
-                sum_of_delivery_price = sum_of_delivery_price + item['delivery_price'] #all_possible_combinations[iterator][item]['delivery_price']
-                for item2 in all_possible_combinations[iterator]:
-                    list_of_sellers.append(item['seller'])
-                    if item != item2:
-                        if item2['seller'] in list_of_sellers:
-                            delivery_price_two_max = max(item['delivery_price'], item2['delivery_price'])
-                            delivery_price = max(delivery_price, delivery_price_two_max)
-                            price_sum = price_sum+item2['price']
-                        elif item2['seller'] not in list_of_sellers:
-                            list_of_sellers.append(item2['seller'])
-                            sum_of_delivery_price = sum_of_delivery_price+item2['seller']
-                            price_sum = price_sum+item2['price']
-                sum_of_delivery_price = sum_of_delivery_price + delivery_price
-            price_sum_with_delivery = sum_of_delivery_price+price_sum
-            returning_sets.append([all_possible_combinations[iterator], price_sum_with_delivery])
-            # print(iterator)
-            # print(price_sum_with_delivery)
-    utils.save_json(returning_sets, 'return.json')
-    return returning_sets
 
 def choose_cheapest_3(prepared_sets_of_articles):
     sorted_list = sorted(prepared_sets_of_articles, key=itemgetter(1))
     return sorted_list[:3]
+
 
 def get_data():
     multi_search_parameters = prepare_query()
@@ -211,9 +169,15 @@ def get_data():
         first_order_data[item_name] = list_of_items_returned_for_searched_item
     # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
     OUTPUT = look_for_other_items_in_sellers(first_order_data, multi_search_parameters)
+    # print(OUTPUT)
+    OUTPUT = prepare_data_to_permutation(OUTPUT, multi_search_parameters)
+    # print(OUTPUT)
+    utils.save_json(OUTPUT, 'prepared_data.json')
+    OUTPUT = permute_data(OUTPUT)
     # OUTPUT = get_sum_of_prices(OUTPUT)  # dane ze zsumowanymi cenami
-    article_combinations = get_article_combinations(OUTPUT, multi_search_parameters)
-    OUTPUT = choose_cheapest_3(article_combinations)
+    # article_combinations = get_article_combinations(OUTPUT, multi_search_parameters)
+    # OUTPUT = choose_cheapest_3(article_combinations)
+    get_price(OUTPUT)
     utils.save_json(OUTPUT)
 
     return OUTPUT
@@ -221,7 +185,3 @@ def get_data():
 
 get_data()
 print('\n\n---------------------------------------\n\tTOTAL TIME OF EXECUTION: {}'.format(time.time() - time_start))
-
-
-# teraz fajnie byłoby mieć takie coś, żeby przelatywać po sprzedawcach i sprawdzać, które atrybuty mają z naszej listy
-# jakoś zbierać to, żeby
