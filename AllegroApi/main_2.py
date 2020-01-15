@@ -76,26 +76,6 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
     return DUZY_DICT
 
 
-def get_most_expensive_delivery_price(delivery_price_table):
-    try:
-        return delivery_price_table.sort()[0]
-    except TypeError:
-        return delivery_price_table[0]
-
-
-def get_sum_of_prices(found_items_data):
-    for seller_id in found_items_data:
-        total_price = 0.0
-        product_price_sum = 0.0
-        delivery_price_table = []
-        for item in found_items_data[seller_id]:
-            product_price_sum = product_price_sum + found_items_data[seller_id][item]['price']
-            delivery_price_table.append(found_items_data[seller_id][item]['delivery_price'])
-            total_price = product_price_sum + get_most_expensive_delivery_price(delivery_price_table)
-        found_items_data[seller_id]['total_price'] = total_price
-    return found_items_data
-
-
 def prepare_data_to_permutation(data, search_parameters):
 
     name_items_found_dict = {}
