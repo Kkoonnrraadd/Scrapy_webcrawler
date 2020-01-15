@@ -1,110 +1,183 @@
+import time
+import itertools
 from pyAllegro.api import AllegroRestApi
-import json
 from AllegroApi import extractions
-from AllegroApi import checkSeller
 from AllegroApi import fetch_module
 from AllegroApi import utils
 from AllegroApi import user_interaction
 
+
 RestApi = AllegroRestApi()
-dane=[]
-fod=[]
-zestaw1=[]
-
-# oferta = {'offer_id': offer_id, 'item_name': name, 'seller': seller, 'delivery_price': delivery_price,
-#           'item_price': item_price}
-
-def praca_nad_danymi(fod):
-    for i in range(len(dane)): #z zapytan o 3-5 hasla
-        for k in range(len(dane)):
-            if dane[i][0]['seller']!=dane[k][0]['seller']: #odrzuca kopie produktow
-
-                for j in range(len(fod)): #sprawdca u innych sprzedawcow hasla
-
-                    if dane[i][0]['offer_id']==fod[j]['offer_id'] and dane[i][0]['seller']!=fod[j]['seller']:   #te same oferty ale inni sprzedacy
-                        if dane[i][0]['delivery_price']>fod[j]['delivery_price']:
-
-                            zestaw1.append(dict(fod[j]['item_name'],fod[j]['item_price']))  #brakuej hiperlacza
-
-
-                    # elif dane[i][0]['offer_id'] != fod[j]['offer_id'] and dane[i][0]['seller'] == fod[j]['seller']: #ci sami sprzedawcy inne produkty
-
-
-
-
-
 
 
 def prepare_query():
-    # przygotuj jakiegos dicta czy cos, co można byłoby wciągnąć do zapytania
-    # szukane_dummy_dict = {'kabel do słuchawek recabling': [5, 70], 'Trąbka eustachiusza': [15, 300], 'Ostrze skalpel 100 szt. nr 11': [0, 25]}
-    szukane_dummy_dict = {'kasza': [0, 100], 'mąka': [0, 100], 'mak': [0, 100]}
-    return szukane_dummy_dict
+    search_parameters={}
+    count=user_interaction.insert_count()  # liczba od usera
+    for i in range(count):
+        input_parameters=user_interaction.input_user()
+        search_parameters.update(input_parameters)
+    return search_parameters  # zwraca parametry
 
 
-def get_price_range(min_max_price):
-    # trzeba pamietac, zeby cena minimalna zawsze była w zakresie [0;max_price]
+def get_price_range_and_state(min_max_price):
     min_price = min_max_price[0]
     max_price = min_max_price[1]
-    return min_price, max_price
+    state=min_max_price[2]
+    return min_price, max_price, state
+
 
 
 def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
+    sellers_found = set()
+    DUZY_DICT = {}
+
     for search_item_name in first_order_data:
-        min_price, max_price = get_price_range(input_search_parameters[search_item_name])
-        # dla kazdego hasla i zakresu cenowego, ktory zdefiniowalismy,
-        # dla kazdego itemu znalezionego
-        # dla kazdego sprzedawcy tego itemu
-        # szukaj itemow pasujacych do pozostalych szukanych fraz
-
-        print('PARENT SEARCH: \t{}'.format(search_item_name))
-        # print('\t-------------------FIRST ORDER DATA: {}'.format(first_order_data[search_item_name]))
-
         keys = set(dict.keys(first_order_data))
         excludes = set([search_item_name])
+
         for found_item in first_order_data[search_item_name]:
-            seller_id = found_item['seller']['id']
+            seller_id = found_item['seller']
 
-            for other_inputed_item in keys.difference(excludes):
-                # print('{}: {}'.format(search_item_name, other_inputed_item))
-                min_price, max_price = get_price_range(input_search_parameters[other_inputed_item])
-                # szukaj u sprzedawcy o seller_id, itemu o nazwie other_inputed_item i min i max cenie.
-                returned_raw_data = fetch_module.get_seller_response(RestApi, other_inputed_item, seller_id, limit=1,
-                                                                     maximum_price=max_price, minimum_price=min_price)
-                extracted_search_output = extractions.extract_valuable_info_from_raw_data(returned_raw_data)
-                if extracted_search_output:
-                    # print('\t\t Found {} item with id = {} in {} staff and price {}: '.format(other_inputed_item,
-                    #                                                              extracted_search_output[0]['offer_id'],
-                    #                                                              # extracted_search_output[other_inputed_item]['offer_id'],
-                    #                                                              seller_id,extracted_search_output[0]['item_price']))
-                    #print('\t\t\t------------------------------\n{}'.format(extracted_search_output))
+            sredni_dict = {}
+            maly_sredni_dict = {}
+            maly_sredni_dict['id'] = found_item['offer_id']
+            maly_sredni_dict['price'] = found_item['item_price']
+            maly_sredni_dict['name'] = found_item['item_name']
+            maly_sredni_dict['link'] = found_item['item_link']
+            maly_sredni_dict['delivery_price'] = found_item['delivery_price']
+            maly_sredni_dict['seller'] = found_item['seller']
 
-                    dane.append(extracted_search_output)
+            sredni_dict[search_item_name] = maly_sredni_dict
 
-                    #print(type(extracted_search_output))
+            if seller_id not in sellers_found:
 
-                    # wez jsona i na nim pracuj
+                sellers_found.add(seller_id)
+
+                for other_inputed_item in keys.difference(excludes):
+                    min_price, max_price, stan = get_price_range_and_state(input_search_parameters[other_inputed_item])
+                    returned_raw_data = fetch_module.get_seller_response(RestApi, other_inputed_item, seller_id,
+                                                                         limit=1,
+                                                                         maximum_price=max_price,
+                                                                         minimum_price=min_price,
+                                                                         state=stan)
+                    extracted_second_order_search_output = extractions.extract_valuable_info_from_raw_data(
+                        returned_raw_data)
+                    try:
+
+                        maly_dict = {}
+                        maly_dict['id'] = extracted_second_order_search_output[0]['offer_id']
+                        maly_dict['price'] = extracted_second_order_search_output[0]['item_price']
+                        maly_dict['name'] = extracted_second_order_search_output[0]['item_name']
+                        maly_dict['link'] = extracted_second_order_search_output[0]['item_link']
+                        maly_dict['delivery_price'] = extracted_second_order_search_output[0]['delivery_price']
+                        maly_dict['seller'] = extracted_second_order_search_output[0]['seller']
+                        sredni_dict[other_inputed_item] = maly_dict
+                        DUZY_DICT[seller_id] = sredni_dict
+                    except IndexError:
+                        pass
+                DUZY_DICT[seller_id] = sredni_dict
+    return DUZY_DICT
 
 
+def prepare_data_to_permutation(data, search_parameters):
+
+    name_items_found_dict = {}
+    for name in search_parameters:
+        table_for_data = []
+        for seller in data:
+            for item in data[seller]:
+                if item == name:
+                    table_for_data.append(data[seller][name])
+            name_items_found_dict[name] = table_for_data
+    return name_items_found_dict
 
 
-            # trzeba to będzie jeszcze zapisać
+def permute_data(data):
+    returned_list = []
+    sorted_keys = sorted(data.keys())
+    for element in itertools.product(*list(data[k] for k in sorted_keys)):
+        returned_list.append(list(zip(sorted_keys, element)))
+    return returned_list
+
+
+def get_price(data):
+    for set in data:
+        seller_ids = []
+        price_sum = 0.0
+        iterator = 0
+        delivery_prices = []
+        max_delivery_price = 0.0
+        for item in set:
+            iterator += 1
+            item_body = item[1]
+            seller = item_body['seller']
+            price_sum += item_body['price']
+            delivery_prices.append(item_body['delivery_price'])
+            seller_ids.append(item_body['seller'])
+        duplicatess = []
+        delivery_to_max = []
+        for seller_id in seller_ids:
+            duplicates = [i for i, x in enumerate(seller_ids) if x == seller_id]
+            duplicatess.append(duplicates[0])
+        for dup_index in duplicatess:
+            delivery_to_max.append(delivery_prices[dup_index])
+        max_delivery_price = max(delivery_to_max)
+        price_sum += max_delivery_price
+        for x in range(len(delivery_prices)):
+            if x not in duplicatess:
+                price_sum += delivery_prices[x]
+        set.append(price_sum)
+    return data
+
+
+def get_cheapest_3_items(prepared_sets_of_articles):
+    return (sorted(prepared_sets_of_articles, key = lambda x: x[-1]))[:3]
+
+
+def print_links(data):
+    print('WYNIK')
+    for sets in data:
+        print(80*'-')
+        cena_calkowita = sets[-1]
+        for item in range(len(sets)-1):
+            item_body = sets[item][1]
+            item_text = '\n\tszukane hasło: {}\n znaleziono: {} o id {} w cenie {}. \nlink {}'.format(sets[item][0], item_body['name'], item_body['id'], item_body['price'], item_body['link'])
+            print(item_text)
+        print('cena_calkowita = {}'.format(cena_calkowita))
+    return
 
 
 def get_data():
-    multi_search_parameters = prepare_query()
+    multi_search_parameters = prepare_query()  #zapytanko
+    # search params {'cos': [1, 2], 'cokolwiek': [3, 4]}
     first_order_data = {}
-    for item_name in multi_search_parameters:
+
+    #new_or_used=user_interaction.mozeUzywane()
+
+    for item_name in multi_search_parameters:  # itemki
         haslo = item_name
-        min_price, max_price = get_price_range(multi_search_parameters[haslo])
-        returned_search_raw_data = fetch_module.get_response(RestApi, haslo, minimum_price=min_price, maximum_price=max_price)
+        min_price, max_price, stan = get_price_range_and_state(multi_search_parameters[haslo])    #cene
 
-        list_of_items_returned_for_searched_item = extractions.extract_valuable_info_from_raw_data(returned_search_raw_data)
-        first_order_data[item_name] = list_of_items_returned_for_searched_item
-    # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
+        returned_search_raw_data = fetch_module.get_response(RestApi, haslo, minimum_price=min_price,
+                                                             maximum_price=max_price,state=stan)  #zapytanie i odpowiedz raw
 
-    look_for_other_items_in_sellers(first_order_data, multi_search_parameters)
-    # utils.save_json(first_order_data)
-    # praca_nad_danymi(list_of_items_returned_for_searched_item)
+        list_of_items_returned_for_searched_item = extractions.extract_valuable_info_from_raw_data(
+            returned_search_raw_data)
 
-get_data()
+
+        first_order_data[item_name] = list_of_items_returned_for_searched_item # z pierwszego zapytania
+
+    # # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
+    OUTPUT = look_for_other_items_in_sellers(first_order_data, multi_search_parameters)         ########
+    OUTPUT = prepare_data_to_permutation(OUTPUT, multi_search_parameters)
+    utils.save_json(OUTPUT, 'prepared_data.json')
+    OUTPUT = permute_data(OUTPUT)
+    OUTPUT = get_price(OUTPUT)
+    OUTPUT = get_cheapest_3_items(OUTPUT)
+    print(print_links(OUTPUT))
+    utils.save_json(OUTPUT)
+    return OUTPUT
+
+
+get_data()    # zaczynamy
+print('\n\n---------------------------------------\n\t')
