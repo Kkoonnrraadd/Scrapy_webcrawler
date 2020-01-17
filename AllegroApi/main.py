@@ -1,10 +1,10 @@
 from pyAllegro.api import AllegroRestApi
 import json
-from AllegroApi import extractions
-from AllegroApi import checkSeller
-from AllegroApi import fetch_module
-from AllegroApi import utils
-from AllegroApi import user_interaction
+from . import extractions
+from . import checkSeller
+from . import fetch_module
+from . import utils
+from . import user_interaction
 
 RestApi = AllegroRestApi()
 # RestApi.load_token()

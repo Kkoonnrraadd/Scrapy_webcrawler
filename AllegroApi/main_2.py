@@ -161,8 +161,10 @@ def get_data():
         returned_search_raw_data = fetch_module.get_response(RestApi, haslo, minimum_price=min_price,
                                                              maximum_price=max_price,state=stan)  #zapytanie i odpowiedz raw
 
+
         list_of_items_returned_for_searched_item = extractions.extract_valuable_info_from_raw_data(
             returned_search_raw_data)
+
 
 
         first_order_data[item_name] = list_of_items_returned_for_searched_item # z pierwszego zapytania

@@ -4,7 +4,9 @@ from AllegroApi import utils
 
 def extract_valuable_info_from_raw_data(json_data):
     returned_items_list = []
+
     for typ_oferty in json_data['items']:
+
         for oferty in json_data['items'][typ_oferty]:
             offer_id = oferty['id']
             name = oferty['name']
@@ -21,6 +23,7 @@ def extract_valuable_info_from_raw_data(json_data):
             oferta = {'offer_id': offer_id, 'item_name': name, 'seller': id_seller, 'delivery_price': float(delivery_price),
                       'item_price': float(item_price), 'item_link': utils.generete_link(name, offer_id)}
             returned_items_list.append(oferta)
+
     return returned_items_list
 
 
@@ -54,3 +57,5 @@ def get_price_only(list_of_items):
         list_of_prices.append(float(item['item_price']))
     list_of_prices.sort()
     return list_of_prices
+
+
