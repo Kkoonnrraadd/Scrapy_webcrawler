@@ -104,26 +104,42 @@ def get_price(data):
         iterator = 0
         delivery_prices = []
         max_delivery_price = 0.0
+        duplicatess = []
+        delivery_to_max = []
+        was_checked = []
+        previous_item_body = {}
         for item in set:
-            iterator += 1
             item_body = item[1]
+
             seller = item_body['seller']
             price_sum += item_body['price']
             delivery_prices.append(item_body['delivery_price'])
-            seller_ids.append(item_body['seller'])
-        duplicatess = []
-        delivery_to_max = []
-        for seller_id in seller_ids:
-            duplicates = [i for i, x in enumerate(seller_ids) if x == seller_id]
-            duplicatess.append(duplicates[0])
-        for dup_index in duplicatess:
-            delivery_to_max.append(delivery_prices[dup_index])
-        max_delivery_price = max(delivery_to_max)
-        price_sum += max_delivery_price
-        for x in range(len(delivery_prices)):
-            if x not in duplicatess:
-                price_sum += delivery_prices[x]
+            seller_ids.append(seller)
+            for seller_id_index in range(len(seller_ids)-1):
+                try:
+                    if seller_ids[seller_id_index] == seller_ids[iterator]:
+                        if(item_body['id'] not in was_checked):
+                            duplicatess.append(item_body)
+                            duplicatess.append(set[seller_id_index][1])
+                            was_checked.append(item_body['id'])
+                except IndexError:
+                    pass
+            iterator += 1
+            if (iterator==1):
+                was_checked.append(item_body['id'])
+
+        if duplicatess:
+            for duplicate in duplicatess:
+                delivery_to_max.append(duplicate['delivery_price'])
+
+            sum_of_delivery_price = sum(delivery_to_max)
+            max_delivery_price = max(delivery_to_max)
+
+            delivery_prices.append(-sum_of_delivery_price+max_delivery_price)
+
+        price_sum += sum(delivery_prices)
         set.append(price_sum)
+
     return data
 
 
@@ -138,7 +154,7 @@ def print_links(data):
         cena_calkowita = sets[-1]
         for item in range(len(sets)-1):
             item_body = sets[item][1]
-            item_text = '\n\tszukane hasło: {}\n znaleziono: {} o id {} w cenie {}. \nlink {}'.format(sets[item][0], item_body['name'], item_body['id'], item_body['price'], item_body['link'])
+            item_text = '\n\tszukane hasło: {}\n znaleziono: {} o id {} w cenie {}. \nlink {}. \n\t sprzedawca: {}'.format(sets[item][0], item_body['name'], item_body['id'], item_body['price'], item_body['link'], item_body['seller'])
             print(item_text)
         print('cena_calkowita = {}'.format(cena_calkowita))
     return
@@ -157,7 +173,6 @@ def get_data():
             returned_search_raw_data)
 
         first_order_data[item_name] = list_of_items_returned_for_searched_item # z pierwszego zapytania
-    # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
     OUTPUT = look_for_other_items_in_sellers(first_order_data, multi_search_parameters)
     OUTPUT = prepare_data_to_permutation(OUTPUT, multi_search_parameters)
     utils.save_json(OUTPUT, 'prepared_data.json')
