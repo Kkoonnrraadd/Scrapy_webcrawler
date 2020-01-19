@@ -154,9 +154,9 @@ def print_links(data):
         cena_calkowita = sets[-1]
         for item in range(len(sets)-1):
             item_body = sets[item][1]
-            item_text = '\n\tszukane hasło: {}\n znaleziono: {} o id {} w cenie {}. \nlink {}. \n\t sprzedawca: {}'.format(sets[item][0], item_body['name'], item_body['id'], item_body['price'], item_body['link'], item_body['seller'])
+            item_text = '\n\tszukane hasło: {}\n znaleziono: {} o id {} w cenie {}. \nlink {}. \n\t sprzedawca: {}'.format(sets[item][0], item_body['name'], item_body['id'], round(item_body['price'], 2), item_body['link'], item_body['seller'])
             print(item_text)
-        print('cena_calkowita = {}'.format(cena_calkowita))
+        print('cena_calkowita = {}'.format(round(cena_calkowita,2)))
     return
 
 
@@ -175,7 +175,7 @@ def get_data():
         first_order_data[item_name] = list_of_items_returned_for_searched_item # z pierwszego zapytania
     OUTPUT = look_for_other_items_in_sellers(first_order_data, multi_search_parameters)
     OUTPUT = prepare_data_to_permutation(OUTPUT, multi_search_parameters)
-    utils.save_json(OUTPUT, 'prepared_data.json')
+    # utils.save_json(OUTPUT, 'prepared_data.json')
     OUTPUT = permute_data(OUTPUT)
     OUTPUT = get_price(OUTPUT)
     OUTPUT = get_cheapest_3_items(OUTPUT)
