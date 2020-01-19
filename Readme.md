@@ -14,3 +14,12 @@ Program uruchomia się poprzez skrypt main_2.py.
         app_name = '>Nazwa Aplikacji<'
         client_id = '>ID<'
         client_secret = '>SECRET<'
+        
+* Dodatkowo potrzebne:
+
+            python 3.8
+            biblioteki:
+                itertools
+                pyAllegro
+                unidecode
+                json
