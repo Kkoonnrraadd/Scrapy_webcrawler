@@ -15,8 +15,8 @@ def input_user():  # user wprowadza produkty
     try:
         name = input("Enter the name: ")
         min_price, max_price = minImax()
-        value=mozeUzywane()
-        input_us={ name : [min_price,max_price,value] }
+        value = mozeUzywane()
+        input_us = {name: [min_price, max_price, value]}
         return input_us
     except TypeError:
         print("Podaj nazwe (string)")
@@ -25,31 +25,32 @@ def input_user():  # user wprowadza produkty
 
 def minImax():
     try:
-        pricemin = int(input('Podaj cenę minimalną:'))
-        pricemax = int(input('Podaj cenę minimalną:'))
+        pricemin = int(input("Podaj cenę minimalną:"))
+        pricemax = int(input("Podaj cenę minimalną:"))
         if pricemin < 0:
-            print('Podano liczbę mniejszą od 0.')
+            print("Podano liczbę mniejszą od 0.")
             return minImax()
         if not pricemin <= pricemax:
-                print('Cena maksymalna jest mniejsza od minimalnej!')
-                return minImax()
+            print("Cena maksymalna jest mniejsza od minimalnej!")
+            return minImax()
 
-        return pricemin,pricemax
+        return pricemin, pricemax
     except ValueError:
-        print('Podano nieprawidłową wartość.')
+        print("Podano nieprawidłową wartość.")
         return minImax()
+
 
 def mozeUzywane():
     try:
         while True:
-            wynik=input("Uzywane?\n")
+            wynik = input("Uzywane?\n")
             if wynik == "Nie":
-                rst='11323_1'
+                rst = "11323_1"
                 return rst
                 break
 
             elif wynik == "Tak":
-                rst='11323_2'
+                rst = "11323_2"
                 return rst
                 break
             else:
@@ -57,9 +58,5 @@ def mozeUzywane():
                 return mozeUzywane()
 
     except ValueError:
-        print('Podano nieprawidłową wartość.')
+        print("Podano nieprawidłową wartość.")
         return mozeUzywane()
-
-
-
-

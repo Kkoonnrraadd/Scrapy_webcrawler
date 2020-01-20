@@ -9,7 +9,7 @@ RestApi.credentials_set(
     appName=config.app_name,
     clientId=config.client_id,
     clientSecred=config.client_secret,
-    redirectUrl='http://localhost:8000'
+    redirectUrl="http://localhost:8000",
 )
 
 RestApi.get_token()

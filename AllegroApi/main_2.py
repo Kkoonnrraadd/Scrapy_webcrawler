@@ -11,10 +11,10 @@ RestApi = AllegroRestApi()
 
 
 def prepare_query():
-    search_parameters={}
-    count=user_interaction.insert_count()  # liczba od usera
+    search_parameters = {}
+    count = user_interaction.insert_count()  # liczba od usera
     for i in range(count):
-        input_parameters=user_interaction.input_user()
+        input_parameters = user_interaction.input_user()
         search_parameters.update(input_parameters)
     return search_parameters  # zwraca parametry
 
@@ -22,9 +22,8 @@ def prepare_query():
 def get_price_range_and_state(min_max_price):
     min_price = min_max_price[0]
     max_price = min_max_price[1]
-    state=min_max_price[2]
+    state = min_max_price[2]
     return min_price, max_price, state
-
 
 
 def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
@@ -36,16 +35,16 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
         excludes = set([search_item_name])
 
         for found_item in first_order_data[search_item_name]:
-            seller_id = found_item['seller']
+            seller_id = found_item["seller"]
 
             sredni_dict = {}
             maly_sredni_dict = {}
-            maly_sredni_dict['id'] = found_item['offer_id']
-            maly_sredni_dict['price'] = found_item['item_price']
-            maly_sredni_dict['name'] = found_item['item_name']
-            maly_sredni_dict['link'] = found_item['item_link']
-            maly_sredni_dict['delivery_price'] = found_item['delivery_price']
-            maly_sredni_dict['seller'] = found_item['seller']
+            maly_sredni_dict["id"] = found_item["offer_id"]
+            maly_sredni_dict["price"] = found_item["item_price"]
+            maly_sredni_dict["name"] = found_item["item_name"]
+            maly_sredni_dict["link"] = found_item["item_link"]
+            maly_sredni_dict["delivery_price"] = found_item["delivery_price"]
+            maly_sredni_dict["seller"] = found_item["seller"]
 
             sredni_dict[search_item_name] = maly_sredni_dict
 
@@ -54,23 +53,42 @@ def look_for_other_items_in_sellers(first_order_data, input_search_parameters):
                 sellers_found.add(seller_id)
 
                 for other_inputed_item in keys.difference(excludes):
-                    min_price, max_price, stan = get_price_range_and_state(input_search_parameters[other_inputed_item])
-                    returned_raw_data = fetch_module.get_seller_response(RestApi, other_inputed_item, seller_id,
-                                                                         limit=1,
-                                                                         maximum_price=max_price,
-                                                                         minimum_price=min_price,
-                                                                         state=stan)
+                    min_price, max_price, stan = get_price_range_and_state(
+                        input_search_parameters[other_inputed_item]
+                    )
+                    returned_raw_data = fetch_module.get_seller_response(
+                        RestApi,
+                        other_inputed_item,
+                        seller_id,
+                        limit=1,
+                        maximum_price=max_price,
+                        minimum_price=min_price,
+                        state=stan,
+                    )
                     extracted_second_order_search_output = extractions.extract_valuable_info_from_raw_data(
-                        returned_raw_data)
+                        returned_raw_data
+                    )
                     try:
 
                         maly_dict = {}
-                        maly_dict['id'] = extracted_second_order_search_output[0]['offer_id']
-                        maly_dict['price'] = extracted_second_order_search_output[0]['item_price']
-                        maly_dict['name'] = extracted_second_order_search_output[0]['item_name']
-                        maly_dict['link'] = extracted_second_order_search_output[0]['item_link']
-                        maly_dict['delivery_price'] = extracted_second_order_search_output[0]['delivery_price']
-                        maly_dict['seller'] = extracted_second_order_search_output[0]['seller']
+                        maly_dict["id"] = extracted_second_order_search_output[0][
+                            "offer_id"
+                        ]
+                        maly_dict["price"] = extracted_second_order_search_output[0][
+                            "item_price"
+                        ]
+                        maly_dict["name"] = extracted_second_order_search_output[0][
+                            "item_name"
+                        ]
+                        maly_dict["link"] = extracted_second_order_search_output[0][
+                            "item_link"
+                        ]
+                        maly_dict[
+                            "delivery_price"
+                        ] = extracted_second_order_search_output[0]["delivery_price"]
+                        maly_dict["seller"] = extracted_second_order_search_output[0][
+                            "seller"
+                        ]
                         sredni_dict[other_inputed_item] = maly_dict
                         DUZY_DICT[seller_id] = sredni_dict
                     except IndexError:
@@ -110,10 +128,10 @@ def get_price(data):
         for item in set:
             iterator += 1
             item_body = item[1]
-            seller = item_body['seller']
-            price_sum += item_body['price']
-            delivery_prices.append(item_body['delivery_price'])
-            seller_ids.append(item_body['seller'])
+            seller = item_body["seller"]
+            price_sum += item_body["price"]
+            delivery_prices.append(item_body["delivery_price"])
+            seller_ids.append(item_body["seller"])
         duplicatess = []
         delivery_to_max = []
         for seller_id in seller_ids:
@@ -131,48 +149,59 @@ def get_price(data):
 
 
 def get_cheapest_3_items(prepared_sets_of_articles):
-    return (sorted(prepared_sets_of_articles, key = lambda x: x[-1]))[:3]
+    return (sorted(prepared_sets_of_articles, key=lambda x: x[-1]))[:3]
 
 
 def print_links(data):
-    print('WYNIK')
+    print("WYNIK")
     for sets in data:
-        print(80*'-')
+        print(80 * "-")
         cena_calkowita = sets[-1]
-        for item in range(len(sets)-1):
+        for item in range(len(sets) - 1):
             item_body = sets[item][1]
-            item_text = '\n\tszukane hasło: {}\n znaleziono: {} o id {} w cenie {}. \nlink {}'.format(sets[item][0], item_body['name'], item_body['id'], item_body['price'], item_body['link'])
+            item_text = "\n\tszukane hasło: {}\n znaleziono: {} o id {} w cenie {}. \nlink {}".format(
+                sets[item][0],
+                item_body["name"],
+                item_body["id"],
+                item_body["price"],
+                item_body["link"],
+            )
             print(item_text)
-        print('cena_calkowita = {}'.format(cena_calkowita))
+        print("cena_calkowita = {}".format(cena_calkowita))
     return
 
 
 def get_data():
-    multi_search_parameters = prepare_query()  #zapytanko
+    multi_search_parameters = prepare_query()  # zapytanko
     # search params {'cos': [1, 2], 'cokolwiek': [3, 4]}
     first_order_data = {}
 
-    #new_or_used=user_interaction.mozeUzywane()
+    # new_or_used=user_interaction.mozeUzywane()
 
     for item_name in multi_search_parameters:  # itemki
         haslo = item_name
-        min_price, max_price, stan = get_price_range_and_state(multi_search_parameters[haslo])    #cene
+        min_price, max_price, stan = get_price_range_and_state(
+            multi_search_parameters[haslo]
+        )  # cene
 
-        returned_search_raw_data = fetch_module.get_response(RestApi, haslo, minimum_price=min_price,
-                                                             maximum_price=max_price,state=stan)  #zapytanie i odpowiedz raw
-
+        returned_search_raw_data = fetch_module.get_response(
+            RestApi, haslo, minimum_price=min_price, maximum_price=max_price, state=stan
+        )  # zapytanie i odpowiedz raw
 
         list_of_items_returned_for_searched_item = extractions.extract_valuable_info_from_raw_data(
-            returned_search_raw_data)
+            returned_search_raw_data
+        )
 
-
-
-        first_order_data[item_name] = list_of_items_returned_for_searched_item # z pierwszego zapytania
+        first_order_data[
+            item_name
+        ] = list_of_items_returned_for_searched_item  # z pierwszego zapytania
 
     # # {szukany1: [znaleziony1, znaleziony2, ...], szukany2: [znaleziony1, znaleziony2, ...], ...}
-    OUTPUT = look_for_other_items_in_sellers(first_order_data, multi_search_parameters)         ########
+    OUTPUT = look_for_other_items_in_sellers(
+        first_order_data, multi_search_parameters
+    )  ########
     OUTPUT = prepare_data_to_permutation(OUTPUT, multi_search_parameters)
-    utils.save_json(OUTPUT, 'prepared_data.json')
+    utils.save_json(OUTPUT, "prepared_data.json")
     OUTPUT = permute_data(OUTPUT)
     OUTPUT = get_price(OUTPUT)
     OUTPUT = get_cheapest_3_items(OUTPUT)
@@ -181,5 +210,5 @@ def get_data():
     return OUTPUT
 
 
-get_data()    # zaczynamy
-print('\n\n---------------------------------------\n\t')
+get_data()  # zaczynamy
+print("\n\n---------------------------------------\n\t")
