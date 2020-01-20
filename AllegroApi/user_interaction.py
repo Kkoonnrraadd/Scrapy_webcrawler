@@ -1,7 +1,7 @@
 def insert_count():  # user podaje liczbe produktow
     try:
         product_count = int(input("Wpisz ilość produktów:\n"))
-        if product_count < 0 or product_count > 5:
+        if product_count <= 0 or product_count > 5:
             print("Podano nieprawidłową wartość")
             return insert_count()
         else:
@@ -26,11 +26,14 @@ def input_user():  # user wprowadza produkty
 def minImax():
     try:
         pricemin = int(input("Podaj cenę minimalną:"))
-        pricemax = int(input("Podaj cenę minimalną:"))
-        if pricemin < 0:
+
+        if pricemin <= 0:
             print("Podano liczbę mniejszą od 0.")
             return minImax()
-        if not pricemin <= pricemax:
+
+        pricemax = int(input("Podaj cenę maksymalną:"))
+
+        if pricemin >= pricemax:
             print("Cena maksymalna jest mniejsza od minimalnej!")
             return minImax()
 

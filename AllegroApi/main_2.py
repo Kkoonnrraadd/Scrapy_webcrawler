@@ -179,6 +179,7 @@ def get_data():
     # new_or_used=user_interaction.mozeUzywane()
 
     for item_name in multi_search_parameters:  # itemki
+        print(item_name)
         haslo = item_name
         min_price, max_price, stan = get_price_range_and_state(
             multi_search_parameters[haslo]
