@@ -27,7 +27,7 @@ def minImax():
     try:
         pricemin = int(input("Podaj cenę minimalną:"))
 
-        if pricemin <= 0:
+        if pricemin < 0:
             print("Podano liczbę mniejszą od 0.")
             return minImax()
 
