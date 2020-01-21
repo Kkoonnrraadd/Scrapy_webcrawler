@@ -14,19 +14,19 @@ def insert_count():  # user podaje liczbe produktow
 
 def input_user():  # user wprowadza produkty
     try:
-        name = input("Enter the name: ")
+        name = input("Podaj nazwe: ")
         min_price, max_price = minImax()
         value = mozeUzywane()
         input_us = {name: [min_price, max_price, value]}
         return input_us
     except TypeError:
-        print("Podaj nazwe (string)")
+        print("Podaj poprawna nazwe produktu. [string]")
         return input_user()
 
 
 def minImax():
     try:
-        pricemin = int(input("Podaj cenę minimalną:"))
+        pricemin = int(input("Podaj cenę minimalną: "))
 
         if pricemin < 0:
             print("Podano liczbę mniejszą od 0.")
