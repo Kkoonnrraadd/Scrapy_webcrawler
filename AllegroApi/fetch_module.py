@@ -1,3 +1,4 @@
+import sys
 def get_response(
     Object,
     phrase,
@@ -37,7 +38,7 @@ def get_response(
                 break
             else:
                 print("Zapytanie o {0} nie jest do zrealizowania, sprawdz poprawność parametrów a następnie wykonaj je jeszcze raz:)".format(phrase))
-                return json_data
+                sys.exit()
 
     return json_data  # status_code,
 
