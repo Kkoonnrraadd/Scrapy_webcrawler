@@ -9,7 +9,9 @@ def save_json(json_data, filename="zapytanie.json"):
 
 def generete_link(item_name, item_id):
 
-    item_name = unidecode.unidecode(item_name).lower().replace(" ", "-")
+    item_name = unidecode.unidecode(item_name).lower().replace(" ", "-").replace('.', '-')
+    for ch in ['@', '~', '#', '$', '%', '^', '&', '*', '|', '+', '}', '{', '=']:
+        item_name = item_name.replace(ch, '')
     preamble = "https://allegro.pl/oferta/"
     link = "{}{}-{}".format(preamble, item_name, item_id)
     return link
