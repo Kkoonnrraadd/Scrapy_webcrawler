@@ -150,13 +150,28 @@ def get_price(data):
                 was_checked.append(item_body['id'])
 
         if duplicatess:
+            dup = {}
+            sellers = []
             for duplicate in duplicatess:
-                delivery_to_max.append(duplicate['delivery_price'])
+                del_price = duplicate['delivery_price']
+                sellerr = duplicate['seller']
+                # delivery_to_max.append(duplicate['delivery_price'])
+                # jest seller to moze wlasnie
+                if sellerr not in sellers:
+                    sellers.append(sellerr)
+                    dup[sellerr] = []
 
-            sum_of_delivery_price = sum(delivery_to_max)
-            max_delivery_price = max(delivery_to_max)
+                dup[sellerr].append(del_price)
+            for seller_id in dup:
+                max_delivery_price = max(dup[seller_id])
+                sum_of_del_price = sum(dup[seller_id])
+                delivery_prices.append(-sum_of_del_price+max_delivery_price)
 
-            delivery_prices.append(-sum_of_delivery_price+max_delivery_price)
+
+            # sum_of_delivery_price = sum(delivery_to_max)
+            # max_delivery_price = max(delivery_to_max)
+
+            # delivery_prices.append(-sum_of_delivery_price+max_delivery_price)
 
         price_sum += sum(delivery_prices)
         set.append(price_sum)
