@@ -3,7 +3,7 @@ global count
 def get_response(
     Object,
     phrase,
-    limit=10,
+    limit=6,
     sorting="+price",
     minimum_price=10,
     maximum_price=25,
@@ -55,7 +55,7 @@ def get_seller_response(
     Object,
     phrase,
     seller_id,
-    limit=10,
+    limit=5,
     sorting="+price",
     minimum_price=1,
     maximum_price=999999999,
