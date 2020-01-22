@@ -1,4 +1,3 @@
-
 def insert_count():  # user podaje liczbe produktow
     try:
         product_count = int(input("Wpisz ilość produktów:\n"))

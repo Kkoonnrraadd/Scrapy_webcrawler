@@ -1,5 +1,7 @@
 import sys
-global count
+
+
+
 def get_response(
     Object,
     phrase,
@@ -8,7 +10,8 @@ def get_response(
     minimum_price=10,
     maximum_price=25,
     state="11323_1",
-    count=0):  # stan=11323_1 domyslnie nowy
+    count=0,
+):  # stan=11323_1 domyslnie nowy
     status_code, json_data = Object.resource_get(
         resource_name="/offers/listing",
         params={
@@ -28,20 +31,38 @@ def get_response(
 
         if k == "searchMeta" and v["totalCount"] == 0:
 
-            if count==0:
+            if count == 0:
                 print(count)
-                count+=1
-                json_data = get_response(Object, phrase, minimum_price=10, maximum_price=25,state="11323_1",count=count)
+                count += 1
+                json_data = get_response(
+                    Object,
+                    phrase,
+                    minimum_price=10,
+                    maximum_price=25,
+                    state="11323_1",
+                    count=count,
+                )
                 break
 
-            elif count<4:
+            elif count < 4:
 
                 print("Nie znaleźliśmy ofert dla frazy {0} \n".format(phrase))
                 try:
 
-                    phrase=input("Czy nie chciałbys zmienic frazy zamowienia ? Wykorzystane próby: {} / 3 \n".format(count))
+                    phrase = input(
+                        "Czy nie chciałbys zmienic frazy zamowienia ? Wykorzystane próby: {} / 3 \n".format(
+                            count
+                        )
+                    )
                     count += 1
-                    json_data = get_response(Object, phrase, minimum_price=10, maximum_price=25,state="11323_1",count=count)
+                    json_data = get_response(
+                        Object,
+                        phrase,
+                        minimum_price=10,
+                        maximum_price=25,
+                        state="11323_1",
+                        count=count,
+                    )
                 except TypeError:
                     sys.exit()
             else:

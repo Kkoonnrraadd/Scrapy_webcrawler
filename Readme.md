@@ -1,11 +1,26 @@
-# Brakuje jeszcze:
+Aplikacja służy do znalezienia najkorzystniejszej cenowo kombinacji szukanych produktów na portalu Allegro.pl
 
-* wyboru minimalnej ceny przedmiotow poszukiwanych
-* parsowania listy przedmiotow i odpowiedniego zapisu odpowiedzi (work in progress)
-* wybierania sprzedawcow z list (work in progress)
-* sprawdzania dostępności artykułów u znalezionych sprzedawców (work in progress)
-* grupowanie matchy
-* ??wybor najmniejszych rozlacznych podzbiorów takich ze dla kazdego itemu, item nalezy do sumy tych zbiorow
-* pobieranie największej ceny dostawy spośród podzbiorów
-* liczenia lacznej ceny i zwracania odpowiednio posortowanych odpowiedzi
-* GUI/cokolwiek
+Program uruchomia się poprzez skrypt main_2.py.
+
+Należy mieć utworzone konto allegro api.
+
+Można to zrobić na tej stronie:
+
+      https://apps.developer.allegro.pl/new
+
+Następnie w pliku config.py utworzyć taką strukturę:
+
+      app_name = '>Nazwa Aplikacji<'
+      client_id = '>ID<'
+      client_secret = '>SECRET<'
+
+Dodatkowo potrzebne:
+
+          python 3.8
+
+          biblioteki:
+              itertools
+              pyAllegro
+              unidecode
+              json
+
